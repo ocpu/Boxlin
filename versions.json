@@ -1,0 +1,10 @@
+{
+  "homepage": "https://boxlin.opencubes.io/",
+  "1.11.2": {
+    "1.0.0": ""
+  },
+  "promos": {
+    "1.11.2-latest": "1.0.0",
+    "1.11.2-recommended": "1.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "modid": "boxlin",
+  "name": "Boxlin",
+  "description": "A mod that provides a Language Adapter for kotlin mods.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": [
+    "ocpu"
+  ],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
