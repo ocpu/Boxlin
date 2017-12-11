@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package io.opencubes.boxlin
 
 import net.minecraft.block.Block
@@ -77,8 +79,8 @@ fun <T : Block> T.setName(name: String, modid: String = Loader.instance().active
     return this
 }
 
-val Item.name: String get() = I18n.format(unlocalizedName + ".name")
-val Block.name: String get() = I18n.format(unlocalizedName + ".name")
+val Item.name: String get() = (unlocalizedName + ".name").localize()
+val Block.name: String get() = (unlocalizedName + ".name").localize()
 
 open class ConfigurationHandler(protected val modid: String,
                                 configFile: File,
@@ -132,3 +134,5 @@ fun getGuiConfig(parent: GuiScreen, config: Configuration, modid: String, title:
 
     return GuiConfig(parent, categories as List<IConfigElement>?, modid, allRequiresWorldRestart, allRequiresMCRestart, title)
 }
+
+fun String.localize() = I18n.format(this)

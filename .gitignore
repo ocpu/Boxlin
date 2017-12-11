@@ -12,3 +12,8 @@ build
 # other
 eclipse
 run
+logs/
+resoursepacks/
+saves/
+config/
+
