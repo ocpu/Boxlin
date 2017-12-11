@@ -1,3 +1,4 @@
+[ ![Download](https://api.bintray.com/packages/ocpu/minecraft/Boxlin/images/download.svg) ](https://bintray.com/ocpu/minecraft/Boxlin/_latestVersion)
 ## What is this?
 This project is a [Kotlin](https://kotlinlang.org/) language adapter for [Minecraft Forge](http://www.minecraftforge.net/forum/) mod development.
 It also includes some convenience functions and classes.
@@ -51,7 +52,7 @@ repositories {
     // ...
 }
 ```
-And then paste this in the dependencies closure `compile "io.opencubes.boxlin:Boxlin:1.1.0"`. 
+And then paste this in the dependencies closure `compile "io.opencubes.boxlin:Boxlin:1.1.0"`.
 
 ### License
 [MIT](https://github.com/ocpu/Boxlin/blob/master/license.txt)
