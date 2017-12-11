@@ -1,4 +1,3 @@
-@file:Suppress("unused")
 package io.opencubes.boxlin.adapter
 
 import net.minecraftforge.fml.common.FMLModContainer
@@ -11,10 +10,14 @@ import java.lang.reflect.Method
 class KotlinAdapter : ILanguageAdapter {
     override fun setProxy(target: Field, proxyTarget: Class<*>, proxy: Any) = target.set(proxyTarget, proxy)
 
-    override fun getNewInstance(container: FMLModContainer, objectClass: Class<*>, classLoader: ClassLoader, factoryMarkedAnnotation: Method?): Any = when {
-        factoryMarkedAnnotation != null -> factoryMarkedAnnotation.invoke(objectClass)
-        else -> try { objectClass.newInstance() } catch (e: Exception) { objectClass.getField("INSTANCE").get(null) }
-    }
+    override fun getNewInstance(container: FMLModContainer,
+                                objectClass: Class<*>,
+                                classLoader: ClassLoader,
+                                factoryMarkedAnnotation: Method?) = when {
+        factoryMarkedAnnotation != null -> factoryMarkedAnnotation(null)
+        "INSTANCE" in objectClass.fields.map { it.name } -> objectClass.getField("INSTANCE").get(null)
+        else -> objectClass.newInstance()
+    }!!
 
     override fun supportsStatics() = false
 

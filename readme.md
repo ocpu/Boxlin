@@ -1,29 +1,57 @@
 ## What is this?
 This project is a [Kotlin](https://kotlinlang.org/) language adapter for [Minecraft Forge](http://www.minecraftforge.net/forum/) mod development.
-For more info go [here](https://github.com/ocpu/Boxlin/wiki) for a little breakdown.
+It also includes some convenience functions and classes.
 
-Make a [issue](https://github.com/ocpu/Boxlin/issues/new) if you do not understand, have questions or have a problem.
-
-## Installation
-First go [Downloads](#downloads) and put the downloaded file in `{mod directory}/lib/`.
-Next in your mod file import Boxlin (`io.opencubes.boxlin.Boxlin`) and set the `modLanguageAdapter`
-value in your Mod annotation to `Boxlin.ADAPTER` and you are done.
-
-The mod file could look something like this.
+It is totally possible to not use Boxlin while developing Kotlin mods for Minecraft. But it can turn your code to 
+a better structure.
 ```kotlin
-import com.minecraftforge.fml.common.Mod
-import io.opencubes.boxlin.Boxlin
-
-@Mod(modid = Mod.modid, modLanguage = "kotlin", modLanguageAdapter = Boxlin.ADAPTER)
+@Mod(
+    modid = Mod.ID,
+    name = Mod.NAME,
+    version = Mod.VERSION
+)
+class Mod {
+    companion object {
+        const val ID = "mod"
+        const val NAME = "Mod"
+        const val VERSION = "1.0.0"
+    }
+    
+    @EventHandler
+    fun preInit(event: FMLPreInitializationEvent) {
+        // code...
+    }
+}
+```
+```kotlin
+@Mod(
+    modid = Mod.ID,
+    name = Mod.NAME,
+    version = Mod.VERSION,
+    modLanguage = "Kotlin",
+    modLanguageAdapter = Boxlin.ADAPTER
+)
 object Mod {
-    const val modid = "mod"
+    const val ID = "mod"
+    const val NAME = "Mod"
+    const val VERSION = "1.0.0"
+    
+    @EventHandler
+    fun preInit(event: FMLPreInitializationEvent) {
+        // code...
+    }
 }
 ```
 
-## Downloads
-| Version | Download |
-|---------|----------|
-| 1.0.0.0   | https://github.com/ocpu/Boxlin/releases/download/v1.0.0.0/boxlin-1.0.0.jar |
+## Installation
+Make sure that in the repositories closure the `jcenter` is called:
+```groovy
+repositories {
+    jcenter()
+    // ...
+}
+```
+And then paste this in the dependencies closure `compile "io.opencubes.boxlin:Boxlin:1.1.0"`. 
 
-## License
+### License
 [MIT](https://github.com/ocpu/Boxlin/blob/master/license.txt)
