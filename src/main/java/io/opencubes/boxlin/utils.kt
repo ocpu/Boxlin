@@ -38,21 +38,42 @@ operator fun <T> NBTTagCompound.set(key: String, value: T) = when (value) {
     else -> throw IllegalArgumentException("NBT cannot contain that type")
 }
 
-inline operator fun <reified T> NBTTagCompound.get(key: String): T = when (T::class.java) {
-    Boolean::class.java-> getBoolean(key) as T
-    Byte::class.java-> getByte(key) as T
-    ByteArray::class.java-> getByteArray(key) as T
-    Double::class.java-> getDouble(key) as T
-    Float::class.java-> getFloat(key) as T
-    IntArray::class.java-> getIntArray(key) as T
-    Int::class.java-> getInteger(key) as T
-    Long::class.java-> getLong(key) as T
-    Short::class.java-> getShort(key) as T
-    String::class.java-> getString(key) as T
-    NBTBase::class.java-> getTag(key) as T
-    UUID::class.java-> getUniqueId(key) as T
-    else -> throw Exception("Could not determine type")
+val tagTypes = arrayListOf(
+        Byte::class.java to 1,
+        Short::class.java to 2,
+        Int::class.java to 3,
+        Integer::class.java to 3,
+        Long::class.java to 4,
+        Float::class.java to 5,
+        Double::class.java to 6,
+        ByteArray::class.java to 7,
+        String::class.java to 8,
+        NBTTagCompound::class.java to 10,
+        IntArray::class.java to 11
+)
+
+inline operator fun <reified T> NBTTagCompound.get(key: String): T {
+    if (!hasKey(key))
+        throw ReferenceException("Could not get value of $key as it does not exist")
+
+    return when (getTagId(key).toInt()) {
+        1 -> getByte(key) as T
+        2 -> getShort(key) as T
+        3 -> getInteger(key) as T
+        4 -> getLong(key) as T
+        5 -> getFloat(key) as T
+        6 -> getDouble(key) as T
+        7 -> getByteArray(key) as T
+        8 -> getString(key) as T
+        9 -> getTagList(key, tagTypes.find { it.first == T::class.java }?.second ?: 0) as T
+        10 -> getCompoundTag(key) as T
+        11 -> getIntArray(key) as T
+        else -> throw TypeException("Could not determine type")
+    }
 }
+
+class ReferenceException(message: String) : Exception(message)
+class TypeException(message: String) : Exception(message)
 
 operator fun NBTTagCompound.contains(key: String) = hasKey(key)
 
@@ -62,8 +83,6 @@ operator fun NBTTagCompound.plus(tag: NBTTagCompound): NBTTagCompound {
     new.merge(tag)
     return new
 }
-
-operator fun NBTTagCompound.plusAssign(tag: NBTTagCompound) = merge(tag)
 
 val logger: Logger get() = LogManager.getLogger(Loader.instance().activeModContainer()?.name)
 
@@ -79,8 +98,8 @@ fun <T : Block> T.setName(name: String, modid: String = Loader.instance().active
     return this
 }
 
-val Item.name: String get() = (unlocalizedName + ".name").localize()
-val Block.name: String get() = (unlocalizedName + ".name").localize()
+val Item.name: String get() = "$unlocalizedName.name".localize()
+val Block.name: String get() = "$unlocalizedName.name".localize()
 
 open class ConfigurationHandler(protected val modid: String,
                                 configFile: File,
