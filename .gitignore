@@ -16,4 +16,5 @@ logs/
 resoursepacks/
 saves/
 config/
-
+hs*
+crash-reports/
