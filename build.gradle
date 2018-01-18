@@ -9,16 +9,18 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.0.9"
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'kotlin'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "com.matthewprenger.cursegradle"
 
-version = '1.2.0'
+version = '1.2.2'
 group = 'io.opencubes.boxlin'
 archivesBaseName = 'boxlin'
 
@@ -55,17 +57,17 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-artifacts {
-    archives sourcesJar
+shadowJar {
+    baseName = 'Boxlin'
+    classifier = null
+    exclude 'home'
+    exclude 'gui'
+    exclude 'adapter'
+    exclude 'dummyThing'
 }
 
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Version': version
-    }
-    baseName = project.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+artifacts {
+    archives sourcesJar
 }
 
 bintray {
@@ -91,7 +93,7 @@ curseforge {
         changelog = file('changelog.md') // A file can also be set using: changelog = file('changelog.txt')
         releaseType = 'release'
         changelogType = 'markdown'
-        mainArtifact(fatJar) {
+        mainArtifact(shadowJar) {
 
         }
     }
