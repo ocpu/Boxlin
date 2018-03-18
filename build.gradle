@@ -107,7 +107,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "minecraft"
-        name = archivesBaseName
+        name = 'Boxlin'
         websiteUrl = 'https://github.com/ocpu/Boxlin'
         vcsUrl = "https://github.com/ocpu/Boxlin.git"
         licenses = ['MIT']
