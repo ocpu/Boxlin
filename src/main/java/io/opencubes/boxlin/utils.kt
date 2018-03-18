@@ -382,3 +382,27 @@ inline fun <reified T : Enum<T>> Property.getEnum(): T =
  * @since 1.1
  */
 fun <T : Enum<T>> Property.setEnum(value: T) = set(value.name)
+
+/**
+ * A proxy delegate. Functions the same as [SidedProxy].
+ *
+ * @param client The client proxy.
+ * @param server The client proxy.
+ * @param E The type of the proxies.
+ *
+ * @example
+ * ```kotlin
+ * @Mod(...)
+ * object ModClass {
+ *   val proxy by useProxy(CLIENT_PROXY::class, SERVER_PROXY::class)
+ *
+ *   @EventHandler
+ *   fun preInit(e: FMLPreInitializationEvent) {
+ *     proxy.preInit(e)
+ *   }
+ * }
+ * ```
+ *
+ * @since 1.3
+ */
+fun <E : Any> useProxy(client: KClass<out E>, server: KClass<out E>) = ProxyInjector(client, server)
