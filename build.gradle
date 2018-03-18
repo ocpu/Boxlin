@@ -1,26 +1,30 @@
 buildscript {
-    ext.kotlin_version = '1.2.10'
+
+    ext."signing.keyId" = signId
+    ext."signing.password" = signPassword
+    ext."signing.secretKeyRingFile" = signFile
+
     repositories {
-        jcenter()
         maven { url "http://files.minecraftforge.net/maven" }
-        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'kotlin'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: "com.matthewprenger.cursegradle"
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.21'
+    id 'org.jetbrains.dokka' version '0.9.16'
+    id 'com.matthewprenger.cursegradle' version '1.0.10'
+    id 'com.jfrog.bintray' version '1.8.0'
+    id 'com.github.johnrengelman.plugin-shadow' version '2.0.2'
+    id 'maven'
+    id 'signing'
+}
 
-version = '1.2.2'
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = '1.3.0'
 group = 'io.opencubes.boxlin'
 archivesBaseName = 'boxlin'
 
@@ -33,7 +37,8 @@ minecraft {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-reflect"
 }
 
 processResources {
@@ -45,11 +50,73 @@ processResources {
 
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
 }
 
 repositories {
     jcenter()
     mavenCentral()
+}
+
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
+
+signing {
+    sign configurations.archives
+}
+
+task createPom {
+    doLast {
+        pom {
+            project {
+                packaging 'jar'
+
+                name 'Boxlin'
+                description 'A language adapter for mods coded in Kotlin + some utility functions.'
+                url 'https://github.com/ocpu/Boxlin'
+
+                licenses {
+                    license {
+                        name "MIT"
+                        distribution "repo"
+                    }
+                }
+                developers {
+                    developer {
+                        id "ocpu"
+                        name "Martin Hövre"
+                        email "martin.hovre@opencubes.io"
+                    }
+                }
+                scm {
+                    connection "https://github.com/ocpu/Boxlin.git"
+                    developerConnection "https://github.com/ocpu/Boxlin.git"
+                    url 'https://github.com/ocpu/Boxlin'
+                }
+            }
+        }.writeTo("$buildDir/poms/pom.xml")
+    }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    configurations = ['archives']
+    pkg {
+        repo = "minecraft"
+        name = archivesBaseName
+        websiteUrl = 'https://github.com/ocpu/Boxlin'
+        vcsUrl = "https://github.com/ocpu/Boxlin.git"
+        licenses = ['MIT']
+        publish = true
+        version {
+            name = project.version
+            vcsTag = project.version
+        }
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -66,35 +133,23 @@ shadowJar {
     exclude 'dummyThing'
 }
 
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
 artifacts {
     archives sourcesJar
-}
-
-bintray {
-    user = bintrayUser
-    key = bintrayKey
-    pkg {
-        repo = "minecraft"
-        name = "Boxlin"
-        configurations = ['archives']
-        licenses = ["MIT"]
-        vcsUrl = "https://github.com/ocpu/Boxlin.git"
-
-        version {
-            name = project.version
-        }
-    }
-}
-
-curseforge {
-    apiKey = curseforgeKey // This should really be in a gradle.properties file
-    project {
-        id = '283350'
-        changelog = file('changelog.md') // A file can also be set using: changelog = file('changelog.txt')
-        releaseType = 'release'
-        changelogType = 'markdown'
-        mainArtifact(shadowJar) {
-
-        }
-    }
+    archives javadocJar
+    archives file: file("$buildDir/poms/pom.xml"), name: 'pom.xml', builtBy: createPom
 }
