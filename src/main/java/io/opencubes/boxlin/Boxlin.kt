@@ -21,7 +21,7 @@ object Boxlin {
   /** The Boxlin mod ID*/
   const val NAME = "Boxlin"
   /** The Boxlin version*/
-  const val VERSION = "1.3.0"
+  const val VERSION = "1.3.1"
   /** The Language Adapter location. Can be used in Mod annotation */
   const val ADAPTER = "io.opencubes.boxlin.adapter.KotlinAdapter"
 

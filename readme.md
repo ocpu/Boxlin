@@ -52,7 +52,7 @@ repositories {
     // ...
 }
 ```
-And then paste this in the dependencies closure `compile "io.opencubes.boxlin:boxlin:1.3.0"`.
+And then paste this in the dependencies closure `compile "io.opencubes.boxlin:boxlin:1.3.1"`.
 
 ### License
 [MIT](https://github.com/ocpu/Boxlin/blob/master/license.txt)
