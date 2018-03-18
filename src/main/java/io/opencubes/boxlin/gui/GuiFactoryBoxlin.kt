@@ -9,7 +9,7 @@ class GuiFactoryBoxlin : IModGuiFactory {
     override fun hasConfigGui() = true
 
     override fun createConfigGui(parentScreen: GuiScreen) =
-            Boxlin.configHandler.guiConfig(parentScreen, "Boxlin configurations")
+            Boxlin.configHandler.guiConfigScreen(parentScreen, "Boxlin configurations")
 
     override fun runtimeGuiCategories(): MutableSet<IModGuiFactory.RuntimeOptionCategoryElement> {
         throw Error("How?")
