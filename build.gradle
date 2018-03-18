@@ -119,6 +119,17 @@ bintray {
     }
 }
 
+curseforge {
+    apiKey = curseforgeKey // This should really be in a gradle.properties file
+    project {
+        id = '283350'
+        changelog = file('changelog.md') // A file can also be set using: changelog = file('changelog.txt')
+        releaseType = 'release'
+        changelogType = 'markdown'
+        mainArtifact(shadowJar) {}
+    }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
