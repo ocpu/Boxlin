@@ -4,6 +4,8 @@ buildscript {
     ext."signing.password" = signPassword
     ext."signing.secretKeyRingFile" = signFile
 
+    ext.kotlin_version = '1.2.21'
+
     repositories {
         maven { url "http://files.minecraftforge.net/maven" }
     }
@@ -31,13 +33,14 @@ minecraft {
     version = "1.12.2-14.23.1.2562"
     runDir = "run"
 
+    replace '@VERSION@', project.version
     mappings = "snapshot_20171003"
     makeObfSourceJar = false
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
 processResources {
@@ -77,17 +80,15 @@ signing {
 install {
     repositories.mavenInstaller {
         pom.project {
-            packaging "jar"
-            groupId project.group
             artifactId archivesBaseName
-            version project.version
-            name project.archivesBaseName
+            name 'Boxlin'
             description 'A language adapter for mods coded in Kotlin + some utility functions.'
-            url 'https://github.com/ocpu/Boxlin'
-            inceptionYear '2017'
+            url 'https://github.com/ocpu/Boxlin#readme'
+
             licenses {
                 license {
-                    name 'MIT'
+                    name 'MIT License'
+                    url 'http://www.opensource.org/licenses/mit-license.php'
                     distribution 'repo'
                 }
             }
@@ -99,9 +100,9 @@ install {
                 }
             }
             scm {
-                connection "https://github.com/ocpu/Boxlin.git"
-                developerConnection "https://github.com/ocpu/Boxlin.git"
-                url 'https://github.com/ocpu/Boxlin'
+                connection "scm:git:git://github.com/ocpu/Boxlin.git"
+                developerConnection "scm:git:ssh://github.com:ocpu/Boxlin.git"
+                url 'http://github.com/ocpu/Boxlin/tree/master'
             }
         }
     }
@@ -159,5 +160,4 @@ task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
-    archives file: file("$buildDir/poms/pom-default.xml"), name: 'pom.xml'
 }
