@@ -352,11 +352,14 @@ fun getGuiConfigScreen(parent: GuiScreen, config: Configuration, modId: String, 
 }
 
 /**
- * Use [I18n] to format this string to its localized form.
+ * Localize a string.
  *
  * @since 1.1
  */
-fun String.localize(): String = I18n.format(this)
+@Suppress("DEPRECATION")
+fun String.localize(vararg args: Any): String =
+    if (FMLCommonHandler.instance().side == Side.CLIENT) net.minecraft.client.resources.I18n.format(this, args)
+    else net.minecraft.util.text.translation.I18n.translateToLocalFormatted(this, args)
 
 /**
  * Setup a configuration property based on a [Enum].
