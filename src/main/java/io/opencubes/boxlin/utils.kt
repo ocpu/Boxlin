@@ -441,3 +441,33 @@ fun <T : Enum<T>> Property.setEnum(value: T) = set(value.name)
  * @since 1.3
  */
 fun <E : Any> useProxy(client: KClass<out E>, server: KClass<out E>) = ProxyInjector(client, server)
+
+/**
+ * Run code on a specific [side].
+ *
+ * @since 1.3.1
+ */
+inline fun runSided(side: Side, block: () -> Unit) =
+    if (side == FMLCommonHandler.instance().side) block() else Unit
+
+/**
+ * Run [client] when client side and [server] on server side.
+ *
+ * @since 1.3.1
+ */
+inline fun runSided(client: () -> Unit, server: () -> Unit) =
+    if (FMLCommonHandler.instance().side.isClient) client() else server()
+
+/**
+ * Run code only on client side.
+ *
+ * @since 1.3.1
+ */
+inline fun runClientSide(block: () -> Unit) = if (FMLCommonHandler.instance().side.isClient) block() else Unit
+
+/**
+ * Run code only on server side.
+ *
+ * @since 1.3.1
+ */
+inline fun runServerSide(block: () -> Unit) = if (FMLCommonHandler.instance().side.isServer) block() else Unit
