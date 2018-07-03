@@ -6,14 +6,11 @@ package io.opencubes.boxlin
 import net.minecraft.block.Block
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
-import net.minecraft.client.resources.I18n
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTBase
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.NonNullList
-import net.minecraft.util.ResourceLocation
+import net.minecraft.nbt.*
+import net.minecraft.util.*
 import net.minecraft.world.World
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.config.ConfigElement
@@ -22,8 +19,8 @@ import net.minecraftforge.common.config.Property
 import net.minecraftforge.fml.client.IModGuiFactory
 import net.minecraftforge.fml.client.config.GuiConfig
 import net.minecraftforge.fml.client.config.IConfigElement
-import net.minecraftforge.fml.common.Loader
-import net.minecraftforge.fml.common.SidedProxy
+import net.minecraftforge.fml.common.*
+import net.minecraftforge.fml.relauncher.Side
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.*
@@ -122,6 +119,39 @@ inline operator fun <reified T> NBTTagCompound.get(key: String): T {
 
 class ReferenceException(message: String) : Exception(message)
 class TypeException(message: String) : Exception(message)
+
+inline fun <reified T> NBTTagCompound.getList(name: String): List<T> {
+  val c = T::class.java
+  val tagList = getTagList(name, tagTypes.find { it.first == c }?.second ?: throw Exception("unsupported type"))
+  if (tagList.tagCount() == 0) return emptyList()
+  return Array(tagList.tagCount()) {
+    when (T::class.java) {
+      Int::class.java -> tagList.getIntAt(it) as T
+      IntArray::class.java -> tagList.getIntArrayAt(it) as T
+      Double::class.java -> tagList.getDoubleAt(it) as T
+      Float::class.java -> tagList.getFloatAt(it) as T
+      String::class.java -> tagList.getStringTagAt(it) as T
+      NBTTagCompound::class.java -> tagList.getCompoundTagAt(it) as T
+      else -> throw Exception("unsupported type")
+    }
+  }.toList()
+}
+
+inline fun <reified T> NBTTagCompound.setList(name: String, list: List<T>) {
+  setTag(name, NBTTagList().apply {
+    list.map {
+      when (T::class.java) {
+        Int::class.java -> NBTTagInt(it as Int)
+        IntArray::class.java -> NBTTagIntArray(it as IntArray)
+        Double::class.java -> NBTTagDouble(it as Double)
+        Float::class.java -> NBTTagFloat(it as Float)
+        String::class.java -> NBTTagString(it as String)
+        NBTTagCompound::class.java -> it as NBTTagCompound
+        else -> throw Exception("unsupported type")
+      }
+    }.forEach(::appendTag)
+  })
+}
 
 /**
  * Checks if a key is in the NBT tag.
@@ -254,6 +284,7 @@ val Item.name: String get() = "$unlocalizedName.name".localize()
  */
 val Block.name: String get() = "$unlocalizedName.name".localize()
 
+@Deprecated("Just no", level = DeprecationLevel.ERROR)
 fun Item.registerModel() {
   if (hasSubtypes)
     variants.map {
@@ -262,12 +293,12 @@ fun Item.registerModel() {
           getUnlocalizedName(it).substring(5)
       )
     }.forEachIndexed { meta, location ->
-          ModelLoader.setCustomModelResourceLocation(
-              this,
-              meta,
-              ModelResourceLocation(location, "inventory")
-          )
-        }
+      ModelLoader.setCustomModelResourceLocation(
+          this,
+          meta,
+          ModelResourceLocation(location, "inventory")
+      )
+    }
   else ModelLoader.setCustomModelResourceLocation(
       this,
       0,
@@ -338,16 +369,17 @@ fun String.localize(): String = I18n.format(this)
  *
  * @since 1.3
  */
-inline operator fun <reified T : Enum<T>> Configuration.get(category: String, key: String, defaultValue: T, comment: String): Property
-    = this.get(category, key, defaultValue.name, comment, T::class.java.enumConstants.map(Enum<T>::name).toTypedArray())
+inline operator fun <reified T : Enum<T>> Configuration.get(category: String, key: String, defaultValue: T,
+                                                            comment: String): Property =
+    this.get(category, key, defaultValue.name, comment, T::class.java.enumConstants.map(Enum<T>::name).toTypedArray())
 
 /**
  * @since 1.1
  */
 @Deprecated("Remove the values argument", ReplaceWith("get(category, key, defaultValue, comment)"))
 inline operator fun <reified T : Enum<T>> Configuration.get(category: String, key: String, defaultValue: T,
-                                                            comment: String, values: Array<T>): Property
-    = get(category, key, defaultValue, comment)
+                                                            comment: String, values: Array<T>): Property =
+    get(category, key, defaultValue, comment)
 
 /**
  * If the current value is in the enum class [T].
