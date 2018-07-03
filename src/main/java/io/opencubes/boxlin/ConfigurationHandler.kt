@@ -10,12 +10,12 @@ import java.io.File
 
 /**
  * A configuration handler that gathers some commonly used stuff.
- * A example is here [Boxlin.configHandler].
+ * A example is here [Boxlin.Config].
  *
  * @example
  * ```kotlin
  * // Method 1
- * class Configuration : ConfigurationHandler(MOD_ID, FILE) {
+ * object Configuration : ConfigurationHandler(MOD_ID, FILE) {
  *   override fun config(config: Configuration) {
  *     // Configs...
  *   }
@@ -27,26 +27,17 @@ import java.io.File
  * }
  * ```
  */
-open class ConfigurationHandler(protected val modId: String,
-                                configFile: File,
-                                protected val configuration: (Configuration.() -> Unit)? = null) {
-
-  val config = Configuration(configFile)
+abstract class ConfigurationHandler(private val modId: String, configFile: File = File("./config/$modId.cfg")) {
+  private val config = Configuration(configFile)
 
   init {
-    configuration?.invoke(config)
     config(config)
-    save()
+    if (config.hasChanged())
+      config.save()
     MinecraftForge.EVENT_BUS.register(this)
   }
 
-  fun config(config: Configuration) { /* OVERRIDE IF EXTENDING */
-  }
-
-  protected fun save() {
-    if (config.hasChanged())
-      config.save()
-  }
+  abstract fun config(config: Configuration)
 
   /**
    * @since 1.1
@@ -67,9 +58,18 @@ open class ConfigurationHandler(protected val modId: String,
   @SubscribeEvent
   fun onConfigurationChangedEvent(event: ConfigChangedEvent.OnConfigChangedEvent) {
     if (event.modID.equals(modId, ignoreCase = true)) {
-      configuration?.invoke(config)
       config(config)
-      save()
+      if (config.hasChanged())
+        config.save()
     }
+  }
+
+  companion object {
+    inline fun create(modId: String,
+                      configFile: File = File("./config/$modId.cfg"),
+                      crossinline configuration: Configuration.() -> Unit) =
+        object : ConfigurationHandler(modId, configFile) {
+          override fun config(config: Configuration) = config.configuration()
+        }
   }
 }

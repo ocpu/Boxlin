@@ -1,5 +1,6 @@
 package io.opencubes.boxlin
 
+import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.Mod.EventHandler
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
@@ -18,36 +19,25 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 object Boxlin {
   /** The Boxlin mod ID*/
   const val ID = "boxlin"
-  /** The Boxlin mod ID*/
+  /** The Boxlin mod name*/
   const val NAME = "Boxlin"
   /** The Boxlin version*/
   const val VERSION = Version.VERSION
   /** The Language Adapter location. Can be used in Mod annotation */
   const val ADAPTER = "io.opencubes.boxlin.adapter.KotlinAdapter"
 
-  /**
-   * Example for a configuration handler see [preInit] to see a initialization.
-   */
-  lateinit var configHandler: ConfigurationHandler
-  object Config {
-    /**
-     * If Boxlin should great the user
-     */
-    var sayHello = true
-  }
-
   @EventHandler
   fun preInit(e: FMLPreInitializationEvent) {
-    configHandler = ConfigurationHandler(ID, e.suggestedConfigurationFile) {
-      Config.sayHello = get(
-          "general",
-          "sayHello",
-          Config.sayHello,
-          "Configure Boxlin to greet you when it loads."
-      ).boolean
-    }
-
     if (Config.sayHello)
       logger.info("config.greeting".localize())
+  }
+
+  object Config : ConfigurationHandler(ID) {
+    var sayHello = true
+    override fun config(config: Configuration) {
+      with(config) {
+        sayHello = this["general", "sayHello", sayHello, "If the library should greet you in the console"].boolean
+      }
+    }
   }
 }
