@@ -13,9 +13,9 @@ import net.minecraft.nbt.*
 import net.minecraft.util.*
 import net.minecraft.world.World
 import net.minecraftforge.client.model.ModelLoader
-import net.minecraftforge.common.config.ConfigElement
-import net.minecraftforge.common.config.Configuration
-import net.minecraftforge.common.config.Property
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.ICapabilityProvider
+import net.minecraftforge.common.config.*
 import net.minecraftforge.fml.client.IModGuiFactory
 import net.minecraftforge.fml.client.config.GuiConfig
 import net.minecraftforge.fml.client.config.IConfigElement
@@ -23,7 +23,10 @@ import net.minecraftforge.fml.common.*
 import net.minecraftforge.fml.relauncher.Side
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.lang.NullPointerException
 import java.util.*
+import java.util.Optional
+import java.util.function.Supplier
 import kotlin.reflect.KClass
 
 /**
@@ -471,3 +474,32 @@ inline fun runClientSide(block: () -> Unit) = if (FMLCommonHandler.instance().si
  * @since 1.3.1
  */
 inline fun runServerSide(block: () -> Unit) = if (FMLCommonHandler.instance().side.isServer) block() else Unit
+
+/**
+ * Get the [capability] as a [Optional].
+ * Check if it exists [Optional.isPresent].
+ * Get the capability [Optional.get] and [Supplier.get]. The supplier is there since you could
+ * compute the Capability on the spot and we wat to defer that until we actually want it.
+ * The supplier will throw a [NullPointerException] if the [ICapabilityProvider.getCapability]
+ * returns null. That should never happen unless it was changed prior go getting it.
+ *
+ * @example
+ * ```kotlin
+ * val stack: ItemStack
+ * val optional = stack.capability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+ * if (optional.isPresent) {
+ *   val itemHandler = optional.get().get()
+ * }
+ * ```
+ *
+ * @param capability The capability to get from the provider.
+ * @param facing The side to check the capability on.
+ * @param T The type of the capability.
+ * @return The optional with or without the value.
+ *
+ * @since 1.3.1
+ */
+fun <T> ICapabilityProvider.capability(capability: Capability<T>, facing: EnumFacing? = null) =
+    if (hasCapability(capability, facing)) Optional.of(
+        Supplier { getCapability(capability, facing) ?: throw NullPointerException() }
+    ) else Optional.empty()
