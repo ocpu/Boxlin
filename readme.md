@@ -48,11 +48,11 @@ object Mod {
 Make sure that in the repositories closure the `jcenter` is called:
 ```groovy
 repositories {
-    jcenter()
+    jcenter() // or mavenCentral()
     // ...
 }
 ```
-And then paste this in the dependencies closure `compile "io.opencubes.boxlin:boxlin:1.3.0"`.
+And then paste this in the dependencies closure `compile "io.opencubes.boxlin:boxlin:1.4.0"`.
 
 ### License
 [MIT](https://github.com/ocpu/Boxlin/blob/master/license.txt)
