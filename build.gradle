@@ -76,6 +76,7 @@ task createFatJar(type: Jar, dependsOn: 'jar') {
 }
 
 signing {
+    useGpgCmd()
     sign configurations.archives
 }
 
