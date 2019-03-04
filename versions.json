@@ -1,11 +1,16 @@
 {
-  "homepage": "https://github.com/ocpu/Boxlin#downloads",
+  "homepage": "https://minecraft.curseforge.com/projects/boxlin/files",
+  "1.13.2": {
+    "2.0.0": "Initial release"
+  },
   "1.12.2": {
     "1.4.0": "Added corutine support",
     "1.2.2": "Fixes mainly"
   },
   "promos": {
     "1.12.2-latest": "1.4.0",
-    "1.12.2-recommended": "1.2.2"
+    "1.12.2-recommended": "1.2.2",
+    "1.13.2-latest": "2.0.0",
+    "1.13.2-recommended": "2.0.0"
   }
 }

@@ -1,10 +1,1 @@
-Changes:
-- `getGuiConfig -> getGuiConfigScreen`
-- `get(category, key, defaultValue, comment, values) -> get(category, key, defaultValue, comment)`
-- `ConfigurationHandler.guiConfig -> ConfigurationHandler.guiConfigScreen`
-
-Added:
-- Javadoc
-- Kotlin Reflect is now bundled with the jar
-- `ProxyInjector` delegate to create proxies
-- `useProxy` to create `ProxyInjector` instances
+Upgraded the api to 2.0 for the port to 1.13 read more on the [GitHub page](https://github.com/ocpu/Boxlin).

@@ -1,3 +1,11 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
 # idea
 out
 *.ipr
@@ -12,9 +20,8 @@ build
 # other
 eclipse
 run
-logs/
-resoursepacks/
-saves/
-config/
-hs*
-crash-reports/
+
+# other
+eclipse
+run
+

@@ -1,78 +1,91 @@
 buildscript {
-
-    ext."signing.keyId" = signId
-    ext."signing.password" = signPassword
-    ext."signing.secretKeyRingFile" = signFile
-
-    ext.kotlin_version = '1.3.0-rc-190'
-
     repositories {
-        maven { url "http://files.minecraftforge.net/maven" }
+        maven { url = 'https://plugins.gradle.org/m2/' }
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'com.github.jengelman.gradle.plugins', name: 'shadow', version: '4.0.4'
+        classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: '1.3.21'
+        classpath group: 'org.jetbrains.dokka', name: 'dokka-gradle-plugin', version: '0.9.16'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'com.jfrog.bintray.gradle', name: 'gradle-bintray-plugin', version: '1.+'
+        classpath group: 'gradle.plugin.com.matthewprenger', name: 'CurseGradle', version: '1.1.2'
     }
 }
 
-plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.0-rc-190'
-    id 'org.jetbrains.dokka' version '0.9.16'
-    id 'com.matthewprenger.cursegradle' version '1.0.10'
-    id 'com.jfrog.bintray' version '1.8.0'
-    id 'maven'
-    id 'signing'
-}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'kotlin'
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'signing'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.matthewprenger.cursegradle'
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-version = '1.4.0'
+version = '2.0.0'
 group = 'io.opencubes.boxlin'
 archivesBaseName = 'boxlin'
 
-minecraft {
-    version = "1.12.2-14.23.1.2562"
-    runDir = "run"
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
-    replace '@VERSION@', project.version
-    mappings = "snapshot_20171003"
-    makeObfSourceJar = false
+minecraft {
+    mappings channel: 'snapshot', version: '20180921-1.13'
+    runs {
+        client = {
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+        server = {
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+    }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0-RC1'
+    minecraft 'net.minecraftforge:forge:1.13.2-25.0.22'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.10'
+    compile 'org.jetbrains.kotlin:kotlin-reflect:1.3.10'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
 }
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+compileKotlin.kotlinOptions.jvmTarget = compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+jar {
+    manifest {
+        attributes(["Specification-Title"     : "boxlin",
+                    "Specification-Vendor"    : "ocpu",
+                    "Specification-Version"   : "1.0",
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : "${version}",
+                    "Implementation-Vendor"   : "ocpu",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven { url "https://kotlin.bintray.com/kotlin-eap" }
-}
-
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
-compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
-
-task createFatJar(type: Jar, dependsOn: 'jar') {
+shadowJar {
     baseName = 'Boxlin'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    exclude 'dummyThing'
-    with jar
+    classifier = null
+    exclude(
+            'assets/forge/**/*', 'assets/minecraft/**/*', 'assets/realms/**/*', 'assets/.mcassetsroot', 'ca/**/*',
+            'checksums/**/*', 'com/**/*', 'cpw/**/*', 'data/**/*', 'io/netty/**/*', 'it/**/*', 'javax/**/*',
+            'joptsimple/**/*', 'licenses/**/*', 'mcp/**/*', 'net/**/*', 'org/**/*', 'oshi/**/*', 'paulscode/**/*',
+            '.*', 'forge*', '*glfw*', '*jinput*', '*jemalloc*', 'lib*', '*.sha1', 'Log*', '*.xml', '*.html', 'mcp*.zip',
+            'module-info.class', 'version', 'yggdrasil_session_pubkey.der', 'pack.png', 'META-INF/maven/**/*',
+            'META-INF/native/**/*', 'META-INF/org/**/*', 'META-INF/proguard/**/*',
+            'META-INF/versions/**/*',
+            'META-INF/services/cpw*', 'META-INF/services/javax*', 'META-INF/services/org*',
+            'META-INF/services/net.minecraftforge.forgespi.coremod.ICoreModProvider', 'META-INF/LICENSE*',
+            'META-INF/NOTICE*', 'META-INF/DEPENDENCIES', 'META-INF/io.netty.versions.properties',
+    )
 }
 
 signing {
@@ -121,7 +134,7 @@ bintray {
         websiteUrl = 'https://github.com/ocpu/Boxlin'
         vcsUrl = "https://github.com/ocpu/Boxlin.git"
         licenses = ['MIT']
-        publish = true
+//        publish = true
         version {
             name = project.version
             vcsTag = project.version
@@ -136,7 +149,7 @@ curseforge {
         changelog = file('changelog.md') // A file can also be set using: changelog = file('changelog.txt')
         releaseType = 'release'
         changelogType = 'markdown'
-        mainArtifact(createFatJar) {}
+        mainArtifact(shadowJar) {}
     }
 }
 

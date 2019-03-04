@@ -1,0 +1,29 @@
+modLoader="boxlin"
+loaderVersion="[2,)"
+issueTrackerURL="https://github.com/ocpu/Boxlin/issues"
+displayURL="https://github.com/ocpu/Boxlin"
+logoFile="boxlin.png"
+
+[[mods]]
+modId="boxlin"
+version="${file.jarVersion}"
+displayName="Boxlin"
+#updateJSONURL="https://raw.githubusercontent.com/ocpu/Boxlin/master/versions.json"
+authors="ocpu"
+description='''
+This is a mod that provides a language adapter for creating mods in Kotlin and provides extra utilities.
+'''
+
+[[dependencies.boxlin]]
+    modId="forge"
+    mandatory=true
+    versionRange="[25,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.boxlin]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.13.2]"
+    ordering="NONE"
+    side="BOTH"

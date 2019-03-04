@@ -1,43 +1,15 @@
 package io.opencubes.boxlin
 
-import net.minecraftforge.common.config.Configuration
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.Mod.EventHandler
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import io.opencubes.boxlin.adapter.FunctionalMod
+import io.opencubes.boxlin.adapter.KotlinModContext
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import org.apache.logging.log4j.LogManager
 
-/**
- * The entry file
- */
-@Mod(
-    modid = Boxlin.ID,
-    name = Boxlin.NAME,
-    version = Boxlin.VERSION,
-    modLanguage = "kotlin",
-    modLanguageAdapter = Boxlin.ADAPTER,
-    guiFactory = "io.opencubes.boxlin.gui.GuiFactoryBoxlin"
-)
-object Boxlin {
-  /** The Boxlin mod ID*/
-  const val ID = "boxlin"
-  /** The Boxlin mod name*/
-  const val NAME = "Boxlin"
-  /** The Boxlin version*/
-  const val VERSION = Version.VERSION
-  /** The Language Adapter location. Can be used in Mod annotation */
-  const val ADAPTER = "io.opencubes.boxlin.adapter.KotlinAdapter"
+private val logger = LogManager.getLogger()
 
-  @EventHandler
-  fun preInit(e: FMLPreInitializationEvent) {
-    if (Config.sayHello)
-      logger.info("config.greeting".localize())
-  }
-
-  object Config : ConfigurationHandler(ID) {
-    var sayHello = true
-    override fun config(config: Configuration) {
-      with(config) {
-        sayHello = this["general", "sayHello", sayHello, "If the library should greet you in the console"].boolean
-      }
-    }
+@FunctionalMod("boxlin")
+fun boxlin() = with(KotlinModContext.get()) {
+  addEventListener<FMLCommonSetupEvent> {
+    logger.debug("Boxlin says hi!")
   }
 }
