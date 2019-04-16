@@ -1,4 +1,7 @@
 [ ![Version](https://api.bintray.com/packages/ocpu/minecraft/Boxlin/images/download.svg) ](https://bintray.com/ocpu/minecraft/Boxlin/_latestVersion)
+
+Looking for 1.13 version? Look in the 2.0 branch
+
 ## What is this?
 This project is a [Kotlin](https://kotlinlang.org/) language adapter for [Minecraft Forge](http://www.minecraftforge.net/forum/) mod development.
 It also includes some convenience utilities when using NBT, proxies and configurtations. Visit the [wiki](https://github.com/ocpu/Boxlin/wiki) to learn more.
