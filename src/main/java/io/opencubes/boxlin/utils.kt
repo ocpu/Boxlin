@@ -1,4 +1,3 @@
-@file:Suppress("unused")
 @file:JvmName("Utils")
 
 package io.opencubes.boxlin
@@ -6,7 +5,10 @@ package io.opencubes.boxlin
 import net.minecraft.nbt.INBTBase
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.world.World
+import net.minecraftforge.fml.DistExecutor
 import java.util.*
+import java.util.function.Supplier
+import kotlin.NoSuchElementException
 
 /**
  * Set a NBT property.
@@ -42,65 +44,68 @@ operator fun <T> NBTTagCompound.set(key: String, value: T) = when (value) {
 }
 
 /**
- * A list of pairs that mappes from the type to the NBT type ID.
- *
- * @private
- */
-val tagTypes = arrayListOf(
-  Byte::class.java to 1,
-  Short::class.java to 2,
-  Int::class.java to 3,
-  Integer::class.java to 3,
-  Long::class.java to 4,
-  Float::class.java to 5,
-  Double::class.java to 6,
-  ByteArray::class.java to 7,
-  String::class.java to 8,
-  NBTTagCompound::class.java to 10,
-  IntArray::class.java to 11
-)
-
-/**
- * Get a NBT property. If the type is not obvious you have to
- * specify it `tag.get<TYPE>(KEY)`.
+ * Get a the value of a specified property on a [NBTTagCompound]. It will get
+ * you any value except [NBTTagList][net.minecraft.nbt.NBTTagList]. If the
+ * [key] does not exist int the [NBTTagCompound] it will return null.
  *
  * @param key The name of the key you want to get the value of.
  * @param T The type to get from the NBT tag.
  * @return The value of the key in the NBT tag.
  *
- * @throws ReferenceException When the NBT tag does not contain the [key]
- * @throws TypeException When type could not be determined.
+ * @throws IllegalStateException When the nbt value id could not be
+ * determined into a type.
  *
  * @example
  * ```kotlin
  * val tag = NBTCompoundTag()
  * tag.setInt("x", 400)
- * val x: Int = tag["x"]
+ * val x: Int? = tag["x"]
  * ```
- * @since 1.1
+ * @since 2.0
  */
-inline operator fun <reified T> NBTTagCompound.get(key: String): T {
+@Suppress("UNCHECKED_CAST")
+operator fun <T> NBTTagCompound.get(key: String): T? {
   if (!hasKey(key))
-    throw ReferenceException("Could not get value of $key as it does not exist")
+    return null
 
   return when (getTagId(key).toInt()) {
-    1 -> getByte(key) as T
-    2 -> getShort(key) as T
-    3 -> getInt(key) as T
-    4 -> getLong(key) as T
-    5 -> getFloat(key) as T
-    6 -> getDouble(key) as T
-    7 -> getByteArray(key) as T
-    8 -> getString(key) as T
-    9 -> getList(key, tagTypes.find { it.first == T::class.java }?.second ?: 0) as T
-    10 -> getTag(key) as T
-    11 -> getIntArray(key) as T
-    else -> throw TypeException("Could not determine type")
-  }
+    1 -> getByte(key)
+    2 -> getShort(key)
+    3 -> getInt(key)
+    4 -> getLong(key)
+    5 -> getFloat(key)
+    6 -> getDouble(key)
+    7 -> getByteArray(key) as Any
+    8 -> getString(key) as Any
+    10 -> getTag(key) as Any
+    11 -> getIntArray(key) as Any
+    else -> throw IllegalStateException("Could not determine tag id to type")
+  } as T
 }
 
-class ReferenceException(message: String) : Exception(message)
-class TypeException(message: String) : Exception(message)
+/**
+ * Get a the value of a specified property on a [NBTTagCompound]. It will get
+ * you any value except [NBTTagList][net.minecraft.nbt.NBTTagList]. If the
+ * [key] does not exist int the [NBTTagCompound] it will throw a [NoSuchElementException].
+ *
+ * @param key The name of the key you want to get the value of.
+ * @param T The type to get from the NBT tag.
+ * @return The value of the key in the NBT tag.
+ *
+ * @throws NoSuchElementException When the NBT tag does not contain the [key].
+ * @throws IllegalStateException When the nbt value id could not be
+ * determined into a type.
+ *
+ * @example
+ * ```kotlin
+ * val tag = NBTCompoundTag()
+ * tag.setInt("x", 400)
+ * val x: Int = tag.getValue("x")
+ * ```
+ * @since 2.0
+ */
+fun <T> NBTTagCompound.getValue(key: String): T =
+  get(key) ?: throw NoSuchElementException("Could not get value of $key as it does not exist")
 
 /**
  * Checks if a key is in the NBT tag.
@@ -121,7 +126,7 @@ class TypeException(message: String) : Exception(message)
 operator fun NBTTagCompound.contains(key: String) = hasKey(key)
 
 /**
- * Merges two NBT tags.
+ * Merges two [NBTTagCompound] tags.
  *
  * @param tag The other tag to merge with.
  * @return A new tag with rhe merged NBT tags.
