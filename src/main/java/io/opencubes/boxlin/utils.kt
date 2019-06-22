@@ -185,3 +185,20 @@ val World.isServer: Boolean get() = !isRemote
  * @since 1.2
  */
 val World.isClient: Boolean get() = isRemote
+
+/**
+ * Runs a function for either the server or the client side (or distribution).
+ * This functions avoid classloading as the original intent of the
+ * [DistExecutor.runForDist] was.
+ *
+ * @param R The resulting common object type.
+ * @param client The function that is going to run on the client side / distribution.
+ * @param server The function that is going to run on the server side / distribution.
+ *
+ * @since 2.0
+ */
+fun <R> runForDist(client: () -> R, server: () -> R): R =
+  DistExecutor.runForDist(
+    { Supplier(client) },
+    { Supplier(server) }
+  )
