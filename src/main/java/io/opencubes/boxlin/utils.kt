@@ -151,6 +151,28 @@ operator fun NBTTagCompound.plus(tag: NBTTagCompound): NBTTagCompound {
 }
 
 /**
+ * Merges two [NBTTagCompound] tags.
+ *
+ * @param tag The other tag to merge with.
+ * @return A new tag with rhe merged NBT tags.
+ *
+ * @example
+ * ```kotlin
+ * val tag1 = NBTTagCompound()
+ * val tag2 = NBTTagCompound()
+ * tag1.setInteger("x", 400)
+ * tag2.setInteger("y", 560)
+ * tag1 += tag2
+ * val x = newTag.getInteger("x")
+ * val y = newTag.getInteger("y")
+ * ```
+ * @since 2.0
+ */
+operator fun NBTTagCompound.plusAssign(tag: NBTTagCompound) {
+  merge(tag)
+}
+
+/**
  * If the world is on the server.
  *
  * @since 1.2
