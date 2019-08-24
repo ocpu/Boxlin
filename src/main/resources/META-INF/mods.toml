@@ -1,0 +1,11 @@
+modLoader="boxlin"
+loaderVersion="[3,)"
+issueTrackerURL="https://github.com/ocpu/Boxlin/issues"
+
+[[mods]]
+modId="boxlin"
+displayName="Boxlin"
+version="${file.jarVersion}"
+logoFile="boxlin.png"
+description="A language provider for Minecraft Forge. This provider will load Kotlin based mods."
+

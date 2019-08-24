@@ -1,0 +1,10 @@
+*.java          text diff=java
+*.kt            text
+*.gradle        text diff=java
+
+*.toml          text
+*.properties    text
+services/*      text
+
+*.jar           binary
+*.png           binary
