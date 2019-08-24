@@ -1,6 +1,10 @@
 [ ![Version](https://api.bintray.com/packages/ocpu/minecraft/Boxlin/images/download.svg) ](https://bintray.com/ocpu/minecraft/Boxlin/_latestVersion)
 
-Looking for 1.13 version? Look in the 2.0 branch
+| MC Version | Branch        | Stability |
+| ---------- | ------------- | :-------: |
+| 1.14.4+    | [v3][v3b]     |  Stable   |
+| 1.13       | [2.0][v2b]    |   Alpha   |
+| +1.12.2    | [master][v1b] |  Stable   |
 
 ## What is this?
 This project is a [Kotlin](https://kotlinlang.org/) language adapter for [Minecraft Forge](http://www.minecraftforge.net/forum/) mod development.
@@ -31,3 +35,6 @@ compile "io.opencubes.boxlin:boxlin:1.4.0"
 ## License
 [MIT](https://github.com/ocpu/Boxlin/blob/master/license.txt)
 
+[v1b]: https://github.com/ocpu/Boxlin/tree/master
+[v2b]: https://github.com/ocpu/Boxlin/tree/2.0
+[v3b]: https://github.com/ocpu/Boxlin/tree/v3
