@@ -117,7 +117,7 @@ task javadocJar(type: Jar) {
 }
 publishing {
   publications {
-    mavenJava(MavenPublication) {
+    boxlin(MavenPublication) {
       from components.java
 
       artifact sourcesJar
@@ -159,20 +159,25 @@ publishing {
   }
   repositories {
     maven {
-      url "file:///${project.projectDir}/mcmodsrepo"
+      name "GitHub"
+      url "https://maven.pkg.github.com/${githubUser}/${project.name}"
+      credentials {
+        username githubUser
+        password githubToken
+      }
     }
   }
 }
 
 signing {
   useGpgCmd()
-  sign publishing.publications.mavenJava
+  sign publishing.publications.boxlin
 }
 
 bintray {
   user = bintrayUser
   key = bintrayKey
-  publications = ['mavenJava']
+  publications = ['boxlin']
   pkg {
     repo = 'minecraft'
     name = 'Boxlin'
