@@ -101,6 +101,20 @@ task generateFatJar(type: Jar) {
       .filter { it.path.contains('org.jetbrains.kotlin') }
       .collect { it.isDirectory() ? it : zipTree(it) }
   }
+
+  manifest {
+    attributes([
+      "FMLModType"              : "LANGPROVIDER",
+      "Specification-Title"     : "boxlin",
+      "Specification-Vendor"    : "ocpu",
+      "Specification-Version"   : "3",
+      "Implementation-Title"    : project.name,
+      "Implementation-Version"  : "${version}",
+      "Implementation-Vendor"   : "ocpu",
+      "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    ])
+  }
+
   with jar
 }
 configure(generateFatJar) {
