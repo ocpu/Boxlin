@@ -1,3 +1,6 @@
+<details>
+<summary style="cursor:pointer">TOC</summary>
+
 - [What/Why is this?](#whatwhy-is-this)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -7,6 +10,8 @@
 - [Utilities](#utilities)
   - [Using the configuration delegates](#using-the-configuration-delegates)
   - [Using a `runForDist` simplifier](#using-a-runfordist-simplifier)
+
+</details>
 
 # What/Why is this?
 
