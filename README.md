@@ -17,9 +17,11 @@
 
 # What/Why is this?
 
-This is a project to enable modding with [Minecraft Forge][mcf] in [Kotlin][kt]. In the process I made it possible to have your mod entries declared as a class, object, or a function. Boxlin also enables you to have configuration entries as a delegate.
+This is a project to enable modding with [Minecraft Forge][mcf] in [Kotlin][kt]. This language provider embeds the Kotlin runtime libraries so you don't have to. Out of the box Boxlin supports the same code written with the builtin FML Java language provider. The only difference is that you **must** replace `FMLJavaModLoadingContext` with `BoxlinContext`.
 
-Normal development with java also works.
+Boxlin also provides you with the ability to use Kotlin objects as a replacement for classes in a lot of cases. For example the mod entry can be an object. What I also worked on is the ability to have a function as your entry point.
+
+The convenience of delegates has been provided to configuration entries. More on that [here](#Using the configuration delegates).
 
 # Installation
 
@@ -62,19 +64,17 @@ dependencies {
 
 # Usage
 
-In the `mods.toml` file specify in the `modLoader` key `boxlin`, and in the `loaderVersion` key `[3,)`.
+To use Boxlin we only have to change our `mods.toml` file with specifying the `modLoader` key `boxlin`, and the `loaderVersion` key `[3,)`.
 ```toml
 modLoader="boxlin"
 loaderVersion="[3,)"
 ```
 
-If you are coming from Java you have to use the `BoxlinContext` instead of `FMLJavaModLoadingContext`.
-
-When declaring your entry point to your mod you can do it in 3 different ways
+The entry point (as touched on in the introduction) we can use 1 of 3 methods.
 
 ## Class
 
-This is the normal way of declaring a mod entry. If you are going to use this method you do not even need the Boxlin mod loader. The instance can be retreived from `BoxlinContext.get().instance` or `BoxlinContext.get().instance<ExampleMod>()`.
+The class method is the "normal" way as this method reflects the Java entry point. If you plan on only using this method of entry you don't even need Boxlin. The instance of your mod retrieved from `BoxlinContext.get().instance` or casted to your class like `BoxlinContext.get().instance<ExampleMod>()`.
 
 ```kotlin
 import net.minecraftforge.fml.common.Mod
@@ -89,7 +89,7 @@ class ExampleMod {
 
 ## Object
 
-This method will most likely be the one you will use as the object is the instance of your mod. So if you need the instance anytime it is right there.
+The object method has the advantage to the class method that the object is the instance of your mod. You can read up on objects [here][kt-o].
 
 ```kotlin
 import net.minecraftforge.fml.common.Mod
@@ -104,7 +104,7 @@ object ExampleMod {
 
 ## Function
 
-With this method you do not even declare a class or object as a entry point it is just a function. This can give you a fully functional based start to your mod. I might get some more functionallity in the future. The instance of the mod can be retreived from the same way as in the class method.
+With the function you do not even declare a class or object as a entry point it is just a function. This can give you a fully functional based start to your mod. The instance of your mod retrieved from `BoxlinContext.get().instance`.
 
 ```kotlin
 import io.opencubes.boxlin.adapter.FunctionalMod
@@ -116,9 +116,14 @@ fun exampleMod() {
 ```
 
 # Utilities
+
+Boxlin provides some utility functions and objects to existing code to make it more "Kotlin friendly". What it means is that Boxlin might for instance have a function for making using configuration values more friendly with the use of delegates. The aim is not to have Boxlin be a "core" mod that might introduce functions for rendering, a new configuration system, and so on.
+
 ## Using the configuration delegates
 
-This is just a example in how you could a configuration object.
+The API for the configurations can be a hassle if you do not want to expose the raw instance of the config value. This can be fixed with Kotlin delegates giving you minimal effort to just hide the instance of the config value and having a configuration with the direct values to strings, booleans, etc.
+
+This is a example in how you could create a configuration object.
 ```kotlin
 import io.opencubes.boxlin.getValue
 import io.opencubes.boxlin.setValue // If a delegate is declared with var
@@ -126,6 +131,7 @@ import net.minecraftforge.common.ForgeConfigSpec
 
 object MyConfig {
   private val builder = ForgeConfigSpec.Builder()
+  // Lazily build the config when it is needed
   val spec: ForgeConfigSpec by lazy { 
     Machine // Init MyMachine config
     builder.build()
@@ -146,7 +152,7 @@ object MyConfig {
   }
 }
 ```
-Later when registering the config just referene `MyConfig.spec`.
+Later when registering the config just reference `MyConfig.spec`.
 
 ## Using a `runForDist` simplifier
 
@@ -157,13 +163,16 @@ val proxy: IProxy = DistExecutor.runForDist(
   { Supplier { ServerProxy() } }
 )
 ``` 
-With utility function with the same name `runForDist` you can shorten it to.
+With a utility function with the same name `runForDist` you can shorten it to.
 ```kotlin
+import io.opencubes.boxlin.runForDist
+
 val proxy = runForDist(::ClientProxy, ::ServerProxy)
 ```
 And it will have the same effect as the one above.
 
 [mcf]: https://minecraftforge.net
 [kt]: https://kotlinlang.org
+[kt-o]: https://kotlinlang.org/docs/reference/object-declarations.html
 [cf]: https://www.curseforge.com/minecraft/mc-mods/boxlin
 [gh-m]: https://github.com/ocpu/Boxlin/tree/master
