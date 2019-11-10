@@ -1,5 +1,11 @@
 .idea/
 .gradle/
+.settings/
+.history/
 build/
 run/
 logs/
+bin/
+
+.classpath
+.project
