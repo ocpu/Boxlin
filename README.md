@@ -18,15 +18,34 @@ Normal development with java also works.
 
 *If you are just looking for the final jar file you can look on [Curse Forge][cf] or in the releases tab above.*
 
-First of all you have to get the package either from maven central or jcenter.
+First of all you have to include and apply the Kotlin gradle plugin. I might look something like this.
+```diff
+ buildscript {
+     repositories {
+         jcenter()
+         mavenCentral()
+         maven { url = 'https://files.minecraftforge.net/maven' }
+     }
+     dependencies {
+         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
++        classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: '1.3.41'
+     }
+ }
+
+ apply plugin: 'net.minecraftforge.gradle'
+ // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+ apply plugin: 'eclipse'
++apply plugin: 'kotlin'
+ apply plugin: 'maven-publish'
+```
+
+Then we have to get the package either from maven central or jcenter and add Kotlin and Boxlin as a dependency.
 ```gradle
 repositories {
   mavenCentral()
   jcenter()
 }
-```
-Then you need to add this in the dependencies block.
-```gradle
+
 dependencies {
   implementation 'io.opencubes:boxlin:3.0.1'
   implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.41'
@@ -41,6 +60,8 @@ In the `mods.toml` file specify in the `modLoader` key `boxlin`, and in the `loa
 modLoader="boxlin"
 loaderVersion="[3,)"
 ```
+
+If you are coming from Java you have to use the `BoxlinContext` instead of `FMLJavaModLoadingContext`.
 
 When declaring your entry point to your mod you can do it in 3 different ways
 
