@@ -1,3 +1,5 @@
+<small>*This branch is for Minecraft versions 1.14.4+. Versions until 1.12.2 can be found in the [master][gh-m] branch.*</small>
+
 <details>
 <summary style="cursor:pointer">TOC</summary>
 
@@ -164,3 +166,4 @@ And it will have the same effect as the one above.
 [mcf]: https://minecraftforge.net
 [kt]: https://kotlinlang.org
 [cf]: https://www.curseforge.com/minecraft/mc-mods/boxlin
+[gh-m]: https://github.com/ocpu/Boxlin/tree/master
