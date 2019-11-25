@@ -21,7 +21,7 @@ This is a project to enable modding with [Minecraft Forge][mcf] in [Kotlin][kt].
 
 Boxlin also provides you with the ability to use Kotlin objects as a replacement for classes in a lot of cases. For example the mod entry can be an object. What I also worked on is the ability to have a function as your entry point.
 
-The convenience of delegates has been provided to configuration entries. More on that [here](#Using the configuration delegates).
+The convenience of delegates has been provided to configuration entries. More on that [here](#using-the-configuration-delegates).
 
 # Installation
 
