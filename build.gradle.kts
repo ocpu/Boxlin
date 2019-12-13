@@ -1,5 +1,7 @@
 @file:Suppress("UNCHECKED_CAST")
 
+import com.matthewprenger.cursegradle.CurseExtension
+import com.matthewprenger.cursegradle.CurseProject
 import com.jfrog.bintray.gradle.BintrayExtension
 import groovy.util.Node
 import groovy.xml.QName
@@ -9,6 +11,7 @@ import java.time.LocalDateTime
 inline fun <reified T : Any> ExtensionContainer.get(block: T.() -> Unit) = getByType(T::class).block()
 fun BintrayExtension.pkg(block: BintrayExtension.PackageConfig.() -> Unit) = pkg.block()
 fun BintrayExtension.PackageConfig.version(block: BintrayExtension.VersionConfig.() -> Unit) = version.block()
+fun CurseExtension.project(block: CurseProject.() -> Unit) = curseProjects.add(CurseProject().apply(block))
 val Node.name: String
   get() = when (val res = name()) {
     is QName -> res.qualifiedName
@@ -40,6 +43,7 @@ plugins {
   signing
   id("org.jetbrains.dokka") version "0.10.0"
   id("com.jfrog.bintray") version "1.8.4"
+  id("com.matthewprenger.cursegradle") version "1.4.0"
 }
 
 version = "3.0.1"
@@ -230,5 +234,16 @@ bintray {
       name = project.version as String
       vcsTag = project.version as String
     }
+  }
+}
+
+extensions.get<CurseExtension> {
+  project {
+    apiKey = properties["curseforgeKey"] as String
+    id = "283350"
+    changelog = file("changelog.md")
+    releaseType = "release"
+    changelogType = "markdown"
+    mainArtifact(fullJar)
   }
 }
