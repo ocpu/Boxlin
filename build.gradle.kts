@@ -6,9 +6,14 @@ import com.jfrog.bintray.gradle.BintrayExtension
 import groovy.util.Node
 import groovy.xml.QName
 import net.minecraftforge.gradle.userdev.UserDevExtension
+import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.LocalDateTime
+import kotlin.reflect.KProperty
 
 inline fun <reified T : Any> ExtensionContainer.get(block: T.() -> Unit) = getByType(T::class).block()
+operator fun <T : Task> T.invoke(action: Action<T>) = action.execute(this)
+operator fun Map<String, Any?>.getValue(thisRef: Any?, property: KProperty<*>) = get(property.name)?.toString()
 fun BintrayExtension.pkg(block: BintrayExtension.PackageConfig.() -> Unit) = pkg.block()
 fun BintrayExtension.PackageConfig.version(block: BintrayExtension.VersionConfig.() -> Unit) = version.block()
 fun CurseExtension.project(block: CurseProject.() -> Unit) = curseProjects.add(CurseProject().apply(block))
@@ -25,30 +30,37 @@ val Node.parent: Node get() = parent()
 
 buildscript {
   repositories {
-    maven { setUrl("https://files.minecraftforge.net/maven") }
+    maven("https://files.minecraftforge.net/maven")
   }
   dependencies {
     classpath(group = "net.minecraftforge.gradle", name = "ForgeGradle", version = "3.+") { isChanging = true }
   }
 }
 
-apply {
-  plugin("net.minecraftforge.gradle")
-  plugin("eclipse")
-}
+apply(plugin = "net.minecraftforge.gradle")
 
 plugins {
   kotlin("jvm") version "1.3.41"
-  `maven-publish`
-  signing
   id("org.jetbrains.dokka") version "0.10.0"
   id("com.jfrog.bintray") version "1.8.4"
   id("com.matthewprenger.cursegradle") version "1.4.0"
+  `maven-publish`
+  signing
+  eclipse
 }
 
 version = "3.0.1"
 group = "io.opencubes"
-base.archivesBaseName = "boxlin"
+
+val githubUser by properties
+val githubToken by properties
+val githubRepo = "Boxlin"
+val gitBranch = "v3"
+val bintrayUser by properties
+val bintrayToken by properties
+val bintrayRepo = "minecraft"
+val bintrayPackage = "Boxlin"
+val curseforgeKey by properties
 
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
@@ -56,14 +68,14 @@ java {
 }
 
 tasks {
-  compileJava {
+  "compileJava"(JavaCompile::class) {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
   }
-  compileKotlin {
+  "compileKotlin"(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
   }
-  compileTestKotlin {
+  "compileTestKotlin"(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
   }
 }
@@ -94,9 +106,9 @@ extensions.get<UserDevExtension> {
     }
     create("data") {
       workingDirectory(project.file("run"))
-      property("forge.logging.markers", "SCAN,REGISTRIES,REGISTRYDUMP")
-      property("forge.logging.console.level", "debug")
-      args("--mod", "examplemod", "--all", "--output", file("src/generated/resources/"))
+      properties["forge.logging.markers"] = "SCAN,REGISTRIES,REGISTRYDUMP"
+      properties["forge.logging.console.level"] = "debug"
+      args("--mod", project.name, "--all", "--output", file("src/generated/resources/"))
       mods {
         create(project.name) {
           source(sourceSets.main.get())
@@ -111,19 +123,27 @@ repositories {
 }
 
 dependencies {
-  "minecraft"("net.minecraftforge:forge:1.14.4-28.0.49")
+  val minecraft by configurations
+  val compile by configurations
+
+  minecraft("net.minecraftforge:forge:1.14.4-28.0.49")
   compile(kotlin("stdlib-jdk8"))
   compile(kotlin("reflect"))
 }
 
-tasks.jar {
+val jar: Jar by tasks
+val dokka: DokkaTask by tasks
+val javadoc: Javadoc by tasks
+val classes: Task by tasks
+
+jar {
   manifest {
     attributes["FMLModType"] = "LANGPROVIDER"
     attributes["Specification-Title"] = project.name
-    attributes["Specification-Vendor"] = "ocpu"
+    attributes["Specification-Vendor"] = githubUser
     attributes["Specification-Version"] = "3"
     attributes["Implementation-Title"] = project.name
-    attributes["Implementation-Vendor"] = "ocpu"
+    attributes["Implementation-Vendor"] = githubUser
     attributes["Implementation-Version"] = archiveVersion.get()
     attributes["Implementation-Timestamp"] = LocalDateTime.now()
   }
@@ -133,7 +153,7 @@ val fullJar by tasks.creating(Jar::class) {
   group = JavaBasePlugin.BUILD_TASK_NAME
   description = "Generate a jar file with dependencies and code"
   archiveClassifier.set("mod")
-  manifest = tasks.jar.get().manifest
+  manifest = jar.manifest
   afterEvaluate {
     from(
       configurations.compile.get()
@@ -141,22 +161,27 @@ val fullJar by tasks.creating(Jar::class) {
         .map { if (it.isDirectory) it else zipTree(it) }
     )
   }
-  with(tasks["jar"] as CopySpec)
+  with(jar)
 }
 
 val sourcesJar by tasks.creating(Jar::class) {
   group = JavaBasePlugin.BUILD_TASK_NAME
   description = "Assembles all source code"
   archiveClassifier.set("sources")
-  dependsOn(tasks.classes)
-  from(sourceSets["main"].allSource)
+  dependsOn(classes)
+  from(project.the<SourceSetContainer>()["main"].allSource)
 }
 
 val javadocJar by tasks.creating(Jar::class) {
   group = JavaBasePlugin.DOCUMENTATION_GROUP
   description = "Assembles Kotlin docs with Dokka"
   archiveClassifier.set("javadoc")
-  from(tasks.dokka)
+  dependsOn(dokka)
+  from(javadoc.destinationDir)
+}
+
+dokka {
+  outputDirectory = javadoc.destinationDir.toString()
 }
 
 publishing {
@@ -168,12 +193,12 @@ publishing {
       artifact(javadocJar)
 
       pom {
+        name.set(githubRepo)
+        description.set("A language provider for Minecraft Forge. This provider will load Kotlin based mods.")
+        url.set("https://github.com/$githubUser/$githubRepo")
+
         withXml {
-          val root = asNode()
-          root.appendNode("name", "Boxlin")
-          root.appendNode("description", "A language provider for Minecraft Forge. This provider will load Kotlin based mods.")
-          root.appendNode("url", "https://github.com/ocpu/Boxlin")
-          for (dependencies in root.childrenByName("dependencies")) {
+          for (dependencies in asNode().childrenByName("dependencies")) {
             for (dependency in dependencies.childrenByName("dependency")) {
               val artifactId = dependency.childByName("artifactId")?.text ?: continue
               if ("forge" in artifactId)
@@ -184,7 +209,7 @@ publishing {
         licenses {
           license {
             name.set("MIT License")
-            url.set("http://www.opensource.org/licenses/mit-license.php")
+            url.set("https://github.com/$githubUser/$githubRepo/blob/$gitBranch/LICENSE")
             distribution.set("repo")
           }
         }
@@ -196,20 +221,26 @@ publishing {
           }
         }
         scm {
-          url.set("https://github.com/ocpu/Boxlin")
-          connection.set("scm:git:git://github.com/ocpu/Boxlin.git")
-          developerConnection.set("scm:git:ssh://github.com/ocpu/Boxlin.git")
+          url.set("https://github.com/$githubUser/$githubRepo")
+          connection.set("scm:git:git://github.com/$githubUser/$githubRepo.git")
+          developerConnection.set("scm:git:ssh://github.com/$githubUser/$githubRepo.git")
         }
       }
     }
   }
   repositories {
-    maven {
+    maven("https://maven.pkg.github.com/$githubUser/$githubRepo") {
       name = "GitHub"
-      setUrl("https://maven.pkg.github.com/${properties["githubUser"]}/${project.name}")
       credentials {
-        username = properties["githubUser"] as String
-        password = properties["githubToken"] as String
+        username = githubUser!!
+        password = githubToken!!
+      }
+    }
+    maven("https://api.bintray.com/maven/$bintrayUser/$bintrayRepo/$bintrayPackage") {
+      name = "Bintray"
+      credentials {
+        username = bintrayUser!!
+        password = bintrayToken!!
       }
     }
   }
@@ -217,29 +248,12 @@ publishing {
 
 signing {
   useGpgCmd()
-  sign(publishing.publications["boxlin"])
-}
-
-bintray {
-  user = properties["bintrayUser"] as String
-  key = properties["bintrayKey"] as String
-  setPublications("boxlin")
-  pkg {
-    repo = "minecraft"
-    name = "Boxlin"
-    websiteUrl = "https://github.com/ocpu/Boxlin"
-    vcsUrl = "https://github.com/ocpu/Boxlin.git"
-    setLicenses("MIT")
-    version {
-      name = project.version as String
-      vcsTag = project.version as String
-    }
-  }
+  sign(publishing.publications[project.name])
 }
 
 extensions.get<CurseExtension> {
   project {
-    apiKey = properties["curseforgeKey"] as String
+    apiKey = curseforgeKey!!
     id = "283350"
     changelog = file("changelog.md")
     releaseType = "release"
