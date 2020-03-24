@@ -49,7 +49,7 @@ plugins {
   eclipse
 }
 
-version = "3.0.1"
+version = "3.0.2"
 group = "io.opencubes"
 
 val githubUser by properties
@@ -126,7 +126,7 @@ dependencies {
   val minecraft by configurations
   val compile by configurations
 
-  minecraft("net.minecraftforge:forge:1.14.4-28.0.49")
+  minecraft("net.minecraftforge:forge:1.15.2-31.1.27")
   compile(kotlin("stdlib-jdk8"))
   compile(kotlin("reflect"))
 }
