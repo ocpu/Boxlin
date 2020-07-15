@@ -10,7 +10,6 @@ import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingException;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -27,7 +26,7 @@ import static net.minecraftforge.fml.Logging.LOADING;
 
 public abstract class BoxlinContainer extends ModContainer {
   protected static Logger logger = LogManager.getLogger();
-  private IEventBus eventBus = BusBuilder.builder()
+  private final IEventBus eventBus = BusBuilder.builder()
     .setExceptionHandler((bus, event, listeners, index, throwable) ->
       logger.error(new EventBusErrorMessage(event, index, listeners, throwable)))
     .build();
@@ -78,7 +77,7 @@ public abstract class BoxlinContainer extends ModContainer {
       postEvent(it);
       checkError(it);
     });
-    configHandler = Optional.of((ModConfig.ModConfigEvent it) -> eventBus.post(it));
+    configHandler = Optional.of(eventBus::post);
     BoxlinContext extension = new BoxlinContext(this);
     contextExtension = () -> extension;
   }
@@ -128,7 +127,7 @@ public abstract class BoxlinContainer extends ModContainer {
     return eventBus;
   }
 
-  private static Type AUTO_SUBSCRIBER = Type.getType(Mod.EventBusSubscriber.class);
+  private static final Type AUTO_SUBSCRIBER = Type.getType(Mod.EventBusSubscriber.class);
 
   public static void injectEvents(ModContainer modContainer, ModFileScanData scanData, ClassLoader loader) {
     // Copied from AutomaticEventSubscriber and slightly modified as the MOD event bus is not correct.

@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 
 public final class BoxlinContainerFunctional extends BoxlinContainer {
   private Object instance;
-  private String method;
+  private final String method;
 
   public BoxlinContainerFunctional(IModInfo info, String className, String method, ClassLoader classLoader, ModFileScanData modFileScanData) {
     super(info, className, classLoader, modFileScanData);
