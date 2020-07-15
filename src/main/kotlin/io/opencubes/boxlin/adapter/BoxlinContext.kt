@@ -18,38 +18,46 @@ class BoxlinContext(private val container: BoxlinContainer) {
   /**
    * Add a event listener to the mod event bus.
    * @param E The type of events this listener will receive.
+   * @param priority The how highly prioritised is this event listener to run.
+   * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
    */
-  inline fun <reified E : Event> addListener(noinline listener: (E) -> Unit) = addListener(E::class.java, listener)
+  inline fun <reified E : Event> addListener(priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, noinline listener: (E) -> Unit) =
+    addListener(E::class.java, priority, receiveCanceled, listener)
 
   /**
    * Add a event listener to the mod event bus.
    * @param E The type of events this listener will receive.
    * @param eventClass The event type class.
+   * @param priority The how highly prioritised is this event listener to run.
+   * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
    */
-  fun <E : Event> addListener(eventClass: Class<E>, listener: (E) -> Unit) {
+  fun <E : Event> addListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     if (GenericEvent::class.java.isAssignableFrom(eventClass))
-      return addGenericListener(eventClass, listener)
-    eventBus.addListener<E>(EventPriority.NORMAL, false, eventClass, listener)
+      return addGenericListener(eventClass, priority, receiveCanceled, listener)
+    eventBus.addListener<E>(priority, receiveCanceled, eventClass, listener)
   }
 
   /**
    * Add a event listener to the mod event bus that handles an event type of [GenericEvent].
    * @param E The type of events this listener will receive.
+   * @param priority The how highly prioritised is this event listener to run.
+   * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
    */
-  inline fun <reified E : Event> addGenericListener(noinline listener: (E) -> Unit) {
-    addGenericListener(E::class.java, listener)
-  }
+  inline fun <reified E : Event> addGenericListener(priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, noinline listener: (E) -> Unit) =
+    addGenericListener(E::class.java, priority, receiveCanceled, listener)
 
   /**
    * Add a event listener to the mod event bus that handles an event type of [GenericEvent].
    * @param E The type of events this listener will receive.
    * @param eventClass The event type class.
+   * @param priority The how highly prioritised is this event listener to run.
+   * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
    */
-  fun <E : Event> addGenericListener(eventClass: Class<E>, listener: (E) -> Unit) {
+  fun <E : Event> addGenericListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     require(GenericEvent::class.java.isAssignableFrom(eventClass)) {
       "The event class given to addGenericListener is not of type GenericEvent"
     }
@@ -60,7 +68,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
       if (it is GenericEvent<*> && it.genericType == genericType)
         listener(it)
     }
-    eventBus.addListener<E>(EventPriority.NORMAL, false, eventClass, validatingListener)
+    eventBus.addListener<E>(priority, receiveCanceled, eventClass, validatingListener)
   }
 
   /**
