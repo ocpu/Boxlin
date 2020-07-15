@@ -49,9 +49,6 @@ plugins {
   eclipse
 }
 
-version = "3.0.2"
-group = "io.opencubes"
-
 val githubUser by properties
 val githubToken by properties
 val githubRepo = "Boxlin"
@@ -61,6 +58,11 @@ val bintrayToken by properties
 val bintrayRepo = "minecraft"
 val bintrayPackage = "Boxlin"
 val curseforgeKey by properties
+val minecraftVersion = "1.15.2"
+val forgeVersion = "31.1.27"
+
+version = "3.1.0-$minecraftVersion"
+group = "io.opencubes"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
@@ -126,7 +128,7 @@ dependencies {
   val minecraft by configurations
   val compile by configurations
 
-  minecraft("net.minecraftforge:forge:1.15.2-31.1.27")
+  minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
   compile(kotlin("stdlib-jdk8"))
   compile(kotlin("reflect"))
 }
@@ -258,6 +260,7 @@ extensions.get<CurseExtension> {
     changelog = file("changelog.md")
     releaseType = "release"
     changelogType = "markdown"
+    addGameVersion(minecraftVersion)
     mainArtifact(fullJar)
   }
 }
