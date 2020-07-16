@@ -55,12 +55,15 @@ repositories {
   jcenter()
 }
 
+def mcVersion = "1.15.2"
+
 dependencies {
-  implementation 'io.opencubes:boxlin:3.0.2'
+  implementation "io.opencubes:boxlin:3.1.0-$mcVersion"
   implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.41'
   implementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.41' // Optional
 }
 ```
+***Warning:*** *After version 3.1.0 the Minecraft version is a part of the version number.*
 
 # Usage
 
