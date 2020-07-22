@@ -20,6 +20,10 @@ public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IMo
     return className;
   }
 
+  public final String getMethodSignature() {
+    return methodSignature;
+  }
+
   @Override
   public <T> T loadMod(IModInfo info, ClassLoader modClassLoader, ModFileScanData modFileScanResults) {
     try {
@@ -27,7 +31,7 @@ public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IMo
       final Constructor<?> constructor = containerClass.getConstructor(IModInfo.class, String.class, String.class, ClassLoader.class, ModFileScanData.class);
       return (T) constructor.newInstance(info, className, methodSignature, modClassLoader, modFileScanResults);
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-      throw new RuntimeException("BoxlinFunctionalContainerJ does not exist?");
+      throw new RuntimeException("BoxlinContainerFunctional does not exist?", e);
     }
   }
 }
