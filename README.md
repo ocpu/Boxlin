@@ -1,5 +1,7 @@
 <small>*This branch is for Minecraft versions 1.14.4+. Versions until 1.12.2 can be found in the [master][gh-m] branch.*</small>
 
+<img align="right" src="https://github.com/ocpu/Boxlin/blob/v3/src/main/resources/boxlin.png">
+
 <details>
 <summary style="cursor:pointer">TOC</summary>
 
