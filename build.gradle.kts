@@ -143,7 +143,7 @@ jar {
     attributes["FMLModType"] = "LANGPROVIDER"
     attributes["Specification-Title"] = project.name
     attributes["Specification-Vendor"] = githubUser
-    attributes["Specification-Version"] = "3"
+    attributes["Specification-Version"] = "3.1"
     attributes["Implementation-Title"] = project.name
     attributes["Implementation-Vendor"] = githubUser
     attributes["Implementation-Version"] = archiveVersion.get()
