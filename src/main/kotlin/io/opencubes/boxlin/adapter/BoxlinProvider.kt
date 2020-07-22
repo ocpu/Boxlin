@@ -36,7 +36,7 @@ class BoxlinProvider : IModLanguageProvider {
       .filter { it.annotationType.className == FUNCTIONAL_MOD_ANNOTATION }
       .map {
         val modId = it.annotationData["value"] as String
-        val loader = BoxlinModLoaderFunctional(it.classType.className, it.memberName.takeWhile { c -> c != '(' })
+        val loader = BoxlinModLoaderFunctional(it.classType.className, it.memberName)
         logger.debug(Logging.SCAN, "Found @FunctionalMod function {} with id {}", loader.className, modId)
         modId to loader
       }
