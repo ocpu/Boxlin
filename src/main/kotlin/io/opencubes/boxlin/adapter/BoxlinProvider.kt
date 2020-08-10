@@ -18,7 +18,6 @@ class BoxlinProvider : IModLanguageProvider {
     @JvmField
     val logger: Logger = LogManager.getLogger()
     const val FUNCTIONAL_MOD_ANNOTATION = "io.opencubes.boxlin.adapter.FunctionalMod"
-    const val MOD_CONTAINER = "io.opencubes.boxlin.adapter.BoxlinClassContainerJ"
   }
 
   override fun getFileVisitor(): Consumer<ModFileScanData> = Consumer { sd ->
