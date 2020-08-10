@@ -58,10 +58,13 @@ val bintrayToken by properties
 val bintrayRepo = "minecraft"
 val bintrayPackage = "Boxlin"
 val curseforgeKey by properties
-val minecraftVersion = "1.15.2"
-val forgeVersion = "31.1.27"
+val libraryVersion = "3.2.0"
+var minecraftVersion = properties["minecraftVersion"] as String? ?: "1.15.2"
+var forgeVersion = properties["forgeVersion"] as String? ?: "31.2.0"
+var mappingsChannel = properties["mappingsChannel"] as String? ?: "snapshot"
+var mappingsVersion = properties["mappingsVersion"] as String? ?: "20190719-1.14.3"
 
-version = "3.1.0-$minecraftVersion"
+version = "$libraryVersion-$minecraftVersion"
 group = "io.opencubes"
 
 java {
@@ -83,7 +86,7 @@ tasks {
 }
 
 extensions.get<UserDevExtension> {
-  mappings("snapshot", "20190719-1.14.3")
+  mappings(mappingsChannel, mappingsVersion)
 
   runs {
     create("client") {

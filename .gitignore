@@ -9,3 +9,5 @@ bin/
 
 .classpath
 .project
+.changelog.md.shasum
+changelog.md
