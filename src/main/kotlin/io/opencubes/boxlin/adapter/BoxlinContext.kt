@@ -29,6 +29,15 @@ class BoxlinContext(private val container: BoxlinContainer) {
   /**
    * Add a event listener to the mod event bus.
    * @param E The type of events this listener will receive.
+   * @param listener The event listener function that will be called.
+   * @since 3.2.0
+   */
+  inline fun <reified E : Event> addListener(noinline listener: (E) -> Unit) =
+    addListener(E::class.java, listener = listener)
+
+  /**
+   * Add a event listener to the mod event bus.
+   * @param E The type of events this listener will receive.
    * @param eventClass The event type class.
    * @param priority The how highly prioritised is this event listener to run.
    * @param receiveCanceled Should this listener receive canceled events.
