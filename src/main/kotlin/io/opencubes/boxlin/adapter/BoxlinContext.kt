@@ -21,6 +21,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param priority The how highly prioritised is this event listener to run.
    * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
+   * @since 3.0.0 updated 3.1.0
    */
   inline fun <reified E : Event> addListener(priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, noinline listener: (E) -> Unit) =
     addListener(E::class.java, priority, receiveCanceled, listener)
@@ -32,6 +33,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param priority The how highly prioritised is this event listener to run.
    * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
+   * @since 3.1.0
    */
   fun <E : Event> addListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     if (GenericEvent::class.java.isAssignableFrom(eventClass))
@@ -45,6 +47,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param priority The how highly prioritised is this event listener to run.
    * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
+   * @since 3.1.0
    */
   inline fun <reified E : Event> addGenericListener(priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, noinline listener: (E) -> Unit) =
     addGenericListener(E::class.java, priority, receiveCanceled, listener)
@@ -56,6 +59,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param priority The how highly prioritised is this event listener to run.
    * @param receiveCanceled Should this listener receive canceled events.
    * @param listener The event listener function that will be called.
+   * @since 3.1.0
    */
   fun <E : Event> addGenericListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     require(GenericEvent::class.java.isAssignableFrom(eventClass)) {
@@ -73,11 +77,13 @@ class BoxlinContext(private val container: BoxlinContainer) {
 
   /**
    * Your mods' generic instance
+   * @since 3.0.0
    */
   val instance get() = container.instance
 
   /**
    * Your mods' generic instance casted as [T].
+   * @since 3.0.0
    */
   @Suppress("UNCHECKED_CAST")
   fun <T : Any> instance() = container.instance as T
