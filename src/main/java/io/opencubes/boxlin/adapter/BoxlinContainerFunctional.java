@@ -5,11 +5,19 @@ import net.minecraftforge.forgespi.language.ModFileScanData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public final class BoxlinContainerFunctional extends BoxlinContainer {
   private Object instance;
   private final FunctionInfo info;
+  private static final Map<Class<?>, Supplier<Object>> injectables = new HashMap<>();
+
+  static {
+    injectables.put(BoxlinContext.class, BoxlinContext::get);
+  }
 
   public BoxlinContainerFunctional(IModInfo info, String className, String methodSignature, ClassLoader classLoader, ModFileScanData modFileScanData) {
     super(info, className, classLoader, modFileScanData);
@@ -36,14 +44,21 @@ public final class BoxlinContainerFunctional extends BoxlinContainer {
       try {
         Object[] args = new Object[methodParameterClasses.length];
         for (int i = 0; i < methodParameterClasses.length; i++) {
-          if (methodParameterClasses[i] == BoxlinContext.class) {
-            args[i] = BoxlinContext.get();
-          } else {
+          Supplier<Object> objectGetter = null;
+          for (Map.Entry<Class<?>, Supplier<Object>> entry : injectables.entrySet()) {
+            if (entry.getKey().isAssignableFrom(methodParameterClasses[i])) {
+              objectGetter = entry.getValue();
+            }
+          }
+
+          if (objectGetter == null) {
             throw new IllegalStateException(
               "No argument can be injected for parameter of type " +
                 info.getParameterClassNames()[i]
             );
           }
+
+          args[i] = objectGetter.get();
         }
         Object res = function.invoke(null, args);
         if (!Objects.equals(info.getReturnTypeClassName(), "void")) {
