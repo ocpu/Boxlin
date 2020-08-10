@@ -37,7 +37,7 @@ class BoxlinProvider : IModLanguageProvider {
       .map {
         val modId = it.annotationData["value"] as String
         val loader = BoxlinModLoaderFunctional(it.classType.className, it.memberName)
-        logger.debug(Logging.SCAN, "Found @FunctionalMod(\"{}\") on class {} with signature {}", modId, loader.className, loader.methodSignature)
+        logger.debug(Logging.SCAN, "Found @FunctionalMod(\"{}\") on class {} with signature {}", modId, loader.className, loader.functionInfo)
         modId to loader
       }
       .toList()

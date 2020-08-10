@@ -10,10 +10,12 @@ import java.lang.reflect.InvocationTargetException;
 public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IModLanguageLoader {
   private final String className;
   private final String methodSignature;
+  private final FunctionInfo functionInfo;
 
   public BoxlinModLoaderFunctional(String className, String methodSignature) {
     this.className = className;
     this.methodSignature = methodSignature;
+    this.functionInfo = new FunctionInfo(methodSignature);
   }
 
   public final String getClassName() {
@@ -22,6 +24,10 @@ public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IMo
 
   public final String getMethodSignature() {
     return methodSignature;
+  }
+
+  public FunctionInfo getFunctionInfo() {
+    return functionInfo;
   }
 
   @Override
