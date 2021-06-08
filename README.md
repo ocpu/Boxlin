@@ -1,6 +1,6 @@
 <small>*This branch is for Minecraft versions 1.14.4+. Versions until 1.12.2 can be found in the [master][gh-m] branch.*</small>
 
-<img align="right" src="https://github.com/ocpu/Boxlin/blob/v3/src/main/resources/boxlin.png">
+<img align="right" src="https://raw.githubusercontent.com/ocpu/Boxlin/v3/src/main/resources/boxlin.png">
 
 <details>
 <summary style="cursor:pointer">TOC</summary>
@@ -33,34 +33,34 @@ First of all you have to include and apply the Kotlin gradle plugin. I might loo
 ```diff
  buildscript {
      repositories {
-         jcenter()
          mavenCentral()
          maven { url = 'https://files.minecraftforge.net/maven' }
      }
      dependencies {
-         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-+        classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: '1.3.41'
+         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
      }
  }
 
  apply plugin: 'net.minecraftforge.gradle'
  // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
  apply plugin: 'eclipse'
-+apply plugin: 'kotlin'
  apply plugin: 'maven-publish'
+
+ plugins {
+   id 'org.jetbrains.kotlin.jvm' version '1.5.10
+ }
 ```
 
-Then we have to get the package either from maven central or jcenter and add Kotlin and Boxlin as a dependency.
+Then we have to a a maven repository from where this project is hosted and add Kotlin and Boxlin as a dependency.
 ```gradle
 repositories {
-  mavenCentral()
-  jcenter()
+  maven { url = 'https://maven.ocpu.me' }
 }
 
 def mcVersion = "1.15.2"
 
 dependencies {
-  implementation "io.opencubes:boxlin:3.1.0-$mcVersion"
+  implementation "io.opencubes:boxlin:3.3.0-$mcVersion"
   implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.41'
   implementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.41' // Optional
 }

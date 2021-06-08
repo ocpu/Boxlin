@@ -46,7 +46,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    */
   fun <E : Event> addListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     if (GenericEvent::class.java.isAssignableFrom(eventClass))
-      return addGenericListener(eventClass, priority, receiveCanceled, listener)
+      return addGenericListener(eventClass as Class<GenericEvent<Nothing>>, priority, receiveCanceled, listener as (GenericEvent<Nothing>) -> Unit)
     eventBus.addListener<E>(priority, receiveCanceled, eventClass, listener)
   }
 
@@ -58,7 +58,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param listener The event listener function that will be called.
    * @since 3.1.0
    */
-  inline fun <reified E : Event> addGenericListener(priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, noinline listener: (E) -> Unit) =
+  inline fun <reified E : GenericEvent<Any>> addGenericListener(priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, noinline listener: (E) -> Unit) =
     addGenericListener(E::class.java, priority, receiveCanceled, listener)
 
   /**
@@ -70,18 +70,17 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param listener The event listener function that will be called.
    * @since 3.1.0
    */
-  fun <E : Event> addGenericListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
+  fun <E : GenericEvent<F>, F> addGenericListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     require(GenericEvent::class.java.isAssignableFrom(eventClass)) {
       "The event class given to addGenericListener is not of type GenericEvent"
     }
-    val genericType = (listener.reflect()?.parameters?.get(0)?.type?.arguments?.get(0)?.type?.classifier as? KClass<*>)?.java
+    val genericType = (listener.reflect()?.parameters?.get(0)?.type?.arguments?.get(0)?.type?.classifier as? KClass<*>)?.java as? Class<F>?
     checkNotNull(genericType) { "Unable to get the generic class of the GenericEvent" }
 
     val validatingListener = Consumer<E> {
-      if (it is GenericEvent<*> && it.genericType == genericType)
-        listener(it)
+      listener(it)
     }
-    eventBus.addListener<E>(priority, receiveCanceled, eventClass, validatingListener)
+    eventBus.addGenericListener(genericType, priority, receiveCanceled, eventClass, validatingListener)
   }
 
   /**

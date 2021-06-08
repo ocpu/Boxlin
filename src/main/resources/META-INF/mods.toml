@@ -1,6 +1,7 @@
 modLoader="boxlin"
 loaderVersion="[3,)"
 issueTrackerURL="https://github.com/ocpu/Boxlin/issues"
+license="MIT"
 
 [[mods]]
 modId="boxlin"

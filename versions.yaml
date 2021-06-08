@@ -1,0 +1,27 @@
+workingDirectory: '1.14'
+minecraft: '1.14.4'
+forge: '28.2.0'
+mappings:
+  channel: snapshot
+  version: 20190719-1.14.3
+---
+workingDirectory: '1.15'
+minecraft: '1.15.2'
+forge: '31.2.0'
+mappings:
+  channel: snapshot
+  version: 20190719-1.14.3
+---
+workingDirectory: '1.16'
+minecraft: '1.16.4'
+forge: '35.1.13'
+mappings:
+  channel: snapshot
+  version: 20201028-1.16.3
+---
+workingDirectory: '1.16.5'
+minecraft: '1.16.5'
+forge: '36.1.25'
+mappings:
+  channel: official
+  version: '1.16.5'
