@@ -15,11 +15,14 @@ public final class BoxlinContainerClass extends BoxlinContainer {
     super(info, className, classLoader, modFileScanData);
   }
 
+  private static final String WILL_LOAD_MOD_FORMAT = "Loading mod instance %s (%s)";
+  private static final String ERROR_FAILED_TO_LOAD_MOD_FORMAT = "Failed to load mod instance for %s (%s)";
+
   @Override
   protected Object getInstance() {
     if (instance == null) {
       try {
-        logger.debug(LOADING, "Loading mod instance {} ({})", modInfo.getModId(), className);
+        logger.debug(LOADING, String.format(WILL_LOAD_MOD_FORMAT, modInfo.getModId(), className));
         if (getClazz().getConstructors().length == 0) {
           try {
             Field field = getClazz().getField("INSTANCE");
@@ -32,8 +35,8 @@ public final class BoxlinContainerClass extends BoxlinContainer {
         if (instance == null)
           instance = getClazz().newInstance();
       } catch (Throwable e) {
-        logger.error(LOADING, "Failed to load mod instance for " + modInfo.getModId() + " (" + className + ")", e);
-        throw new RuntimeException("Failed to load mod instance for " + modInfo.getModId() + " (" + className + ")", e);
+        logger.error(LOADING, String.format(ERROR_FAILED_TO_LOAD_MOD_FORMAT, modInfo.getModId(), className), e);
+        throw new RuntimeException(String.format(ERROR_FAILED_TO_LOAD_MOD_FORMAT, modInfo.getModId(), className), e);
       }
       injectEvents(this, modFileScanData, modClassLoader);
     }
