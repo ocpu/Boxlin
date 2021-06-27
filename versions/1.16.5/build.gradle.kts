@@ -40,6 +40,7 @@ buildscript {
 
 plugins {
   kotlin("jvm") version File("../../VERSION_KOTLIN").readText()
+  kotlin("plugin.serialization") version "1.5.0"
   id("org.jetbrains.dokka") version "0.10.0"
   id("com.matthewprenger.cursegradle") version "1.4.0"
   `maven-publish`
@@ -98,6 +99,7 @@ tasks {
   }
   "compileKotlin"(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
   }
   "compileTestKotlin"(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
@@ -154,6 +156,7 @@ dependencies {
   minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
   implementation(kotlin("stdlib-jdk8"))
   implementation(kotlin("reflect"))
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.2.1")
 }
 
 val jar: Jar by tasks

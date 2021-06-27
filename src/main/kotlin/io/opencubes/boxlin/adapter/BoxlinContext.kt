@@ -44,6 +44,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
    * @param listener The event listener function that will be called.
    * @since 3.1.0
    */
+  @Suppress("UNCHECKED_CAST")
   fun <E : Event> addListener(eventClass: Class<E>, priority: EventPriority = EventPriority.NORMAL, receiveCanceled: Boolean = false, listener: (E) -> Unit) {
     if (GenericEvent::class.java.isAssignableFrom(eventClass))
       return addGenericListener(eventClass as Class<GenericEvent<Nothing>>, priority, receiveCanceled, listener as (GenericEvent<Nothing>) -> Unit)
@@ -77,9 +78,7 @@ class BoxlinContext(private val container: BoxlinContainer) {
     val genericType = (listener.reflect()?.parameters?.get(0)?.type?.arguments?.get(0)?.type?.classifier as? KClass<*>)?.java as? Class<F>?
     checkNotNull(genericType) { "Unable to get the generic class of the GenericEvent" }
 
-    val validatingListener = Consumer<E> {
-      listener(it)
-    }
+    val validatingListener = Consumer<E>(listener)
     eventBus.addGenericListener(genericType, priority, receiveCanceled, eventClass, validatingListener)
   }
 
