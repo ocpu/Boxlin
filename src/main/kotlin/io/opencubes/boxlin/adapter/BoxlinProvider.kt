@@ -43,7 +43,7 @@ class BoxlinProvider : IModLanguageProvider {
     val loader = BoxlinModLoaderFunctional(annotation.classType.className, annotation.memberName)
     var modId = annotation.annotationData["value"] as String? ?: FunctionalMod.IMPLIED
     if (modId == FunctionalMod.IMPLIED)
-      modId = loader.functionInfo.name
+      modId = loader.functionName
     logger.debug(Logging.SCAN, "Found @FunctionalMod(\"{}\") on class {} with signature {}", modId, loader.className, loader.functionType)
     return modId to loader
   }

@@ -3,31 +3,49 @@ package io.opencubes.boxlin.adapter;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.language.IModLanguageProvider;
 import net.minecraftforge.forgespi.language.ModFileScanData;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IModLanguageLoader {
   private final String className;
   private final String methodSignature;
-  private final FunctionInfo functionInfo;
+  private final String functionName;
+  private final Type functionType;
 
   public BoxlinModLoaderFunctional(String className, String methodSignature) {
     this.className = className;
     this.methodSignature = methodSignature;
-    this.functionInfo = new FunctionInfo(methodSignature);
+    int lastOpenParenIndex = methodSignature.lastIndexOf('(');
+    assert lastOpenParenIndex != -1;
+    this.functionName = methodSignature.substring(0, lastOpenParenIndex);
+    this.functionType = Type.getMethodType(methodSignature.substring(lastOpenParenIndex));
   }
 
   public final String getClassName() {
     return className;
   }
 
-  public final String getMethodSignature() {
-    return methodSignature;
+  public Type getFunctionType() {
+    return functionType;
   }
 
-  public FunctionInfo getFunctionInfo() {
-    return functionInfo;
+  public String getFunctionName() {
+    return functionName;
+  }
+
+  public List<String> getParameterClassNames() {
+    return Arrays.stream(functionType.getArgumentTypes())
+      .map(Type::getClassName)
+      .collect(Collectors.toList());
+  }
+
+  public String getReturnTypeClassName() {
+    return functionType.getReturnType().getClassName();
   }
 
   @Override

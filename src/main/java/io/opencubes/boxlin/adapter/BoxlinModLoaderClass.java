@@ -11,7 +11,7 @@ import static io.opencubes.boxlin.adapter.BoxlinProvider.logger;
 import static net.minecraftforge.fml.Logging.LOADING;
 
 public final class BoxlinModLoaderClass implements IModLanguageProvider.IModLanguageLoader {
-  private String className;
+  private final String className;
 
   public BoxlinModLoaderClass(String className) {
     this.className = className;
