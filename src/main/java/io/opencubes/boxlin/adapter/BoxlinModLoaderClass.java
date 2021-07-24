@@ -12,6 +12,7 @@ import static net.minecraftforge.fml.Logging.LOADING;
 
 public final class BoxlinModLoaderClass implements IModLanguageProvider.IModLanguageLoader {
   private final String className;
+  private static final String BOXLIN_CLASS_CONTAINER_CLASS = "io.opencubes.boxlin.adapter.BoxlinContainerClass";
 
   public BoxlinModLoaderClass(String className) {
     this.className = className;
@@ -24,12 +25,12 @@ public final class BoxlinModLoaderClass implements IModLanguageProvider.IModLang
   @Override
   public <T> T loadMod(IModInfo info, ClassLoader modClassLoader, ModFileScanData modFileScanResults) {
     try {
-      final Class<?> fmlContainer = Class.forName("io.opencubes.boxlin.adapter.BoxlinContainerClass", true, Thread.currentThread().getContextClassLoader());
-      logger.debug(LOADING, "Loading BoxlinClassContainerJ from classloader {} - got {}", Thread.currentThread().getContextClassLoader(), fmlContainer.getClassLoader());
-      final Constructor<?> constructor = fmlContainer.getConstructor(IModInfo.class, String.class, ClassLoader.class, ModFileScanData.class);
+      final Class<?> containerClass = Class.forName(BOXLIN_CLASS_CONTAINER_CLASS, true, Thread.currentThread().getContextClassLoader());
+      logger.debug(LOADING, "Loading BoxlinContainerClass from classloader {} - got {}", Thread.currentThread().getContextClassLoader(), containerClass.getClassLoader());
+      final Constructor<?> constructor = containerClass.getConstructor(IModInfo.class, String.class, ClassLoader.class, ModFileScanData.class);
       return (T) constructor.newInstance(info, className, modClassLoader, modFileScanResults);
     } catch (NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      logger.fatal(LOADING, "Unable to load FMLModContainer, wut?", e);
+      logger.fatal(LOADING, "BoxlinContainerClass does not exist?", e);
       throw new RuntimeException(e);
     }
   }

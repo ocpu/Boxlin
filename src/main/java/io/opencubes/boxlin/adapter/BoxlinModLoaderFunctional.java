@@ -11,11 +11,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.opencubes.boxlin.adapter.BoxlinProvider.logger;
+import static net.minecraftforge.fml.Logging.LOADING;
+
 public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IModLanguageLoader {
   private final String className;
   private final String methodSignature;
   private final String functionName;
   private final Type functionType;
+  private static final String BOXLIN_CONTAINER_FUNCTIONAL_CLASS = "io.opencubes.boxlin.adapter.BoxlinContainerFunctional";
 
   public BoxlinModLoaderFunctional(String className, String methodSignature) {
     this.className = className;
@@ -51,7 +55,8 @@ public final class BoxlinModLoaderFunctional implements IModLanguageProvider.IMo
   @Override
   public <T> T loadMod(IModInfo info, ClassLoader modClassLoader, ModFileScanData modFileScanResults) {
     try {
-      final Class<?> containerClass = Class.forName("io.opencubes.boxlin.adapter.BoxlinContainerFunctional", true, Thread.currentThread().getContextClassLoader());
+      final Class<?> containerClass = Class.forName(BOXLIN_CONTAINER_FUNCTIONAL_CLASS, true, Thread.currentThread().getContextClassLoader());
+      logger.debug(LOADING, "Loading BoxlinContainerClass from classloader {} - got {}", Thread.currentThread().getContextClassLoader(), containerClass.getClassLoader());
       final Constructor<?> constructor = containerClass.getConstructor(IModInfo.class, String.class, String.class, ClassLoader.class, ModFileScanData.class);
       return (T) constructor.newInstance(info, className, methodSignature, modClassLoader, modFileScanResults);
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
