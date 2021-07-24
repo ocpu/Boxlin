@@ -1,12 +1,14 @@
 package io.opencubes.boxlin.adapter
 
 import net.minecraftforge.fml.Logging
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLanguageProvider
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLanguageProvider.MODANNOTATION
 import net.minecraftforge.forgespi.language.ILifecycleEvent
 import net.minecraftforge.forgespi.language.IModLanguageProvider
+import net.minecraftforge.forgespi.language.IModLanguageProvider.IModLanguageLoader
 import net.minecraftforge.forgespi.language.ModFileScanData
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.objectweb.asm.Type
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -17,31 +19,32 @@ class BoxlinProvider : IModLanguageProvider {
   companion object {
     @JvmField
     val logger: Logger = LogManager.getLogger()
-    const val FUNCTIONAL_MOD_ANNOTATION = "io.opencubes.boxlin.adapter.FunctionalMod"
+    val FUNCTIONAL_MOD_ANNOTATION: Type = Type.getType("Lio/opencubes/boxlin/adapter/FunctionalMod;")
   }
 
   override fun getFileVisitor(): Consumer<ModFileScanData> = Consumer { sd ->
-    val loaders = mutableMapOf<String, IModLanguageProvider.IModLanguageLoader>()
-    loaders += Sequence(sd.annotations::iterator)
-      .filter { it.annotationType == FMLJavaModLanguageProvider.MODANNOTATION }
-      .map {
-        val modId = it.annotationData["value"] as String
-        val loader = BoxlinModLoaderClass(it.classType.className)
-        logger.debug(Logging.SCAN, "Found @Mod(\"{}\") on class {}", modId, loader.className)
-        modId to loader
+    sd.addLanguageLoader(sd.annotations.mapNotNull {
+      when (it.annotationType) {
+        MODANNOTATION -> resolveClassLoader(it)
+        FUNCTIONAL_MOD_ANNOTATION -> resolveFunctionLoader(it)
+        else -> null
       }
-      .toList()
-    loaders += Sequence(sd.annotations::iterator)
-      .filter { it.annotationType.className == FUNCTIONAL_MOD_ANNOTATION }
-      .map {
-        val loader = BoxlinModLoaderFunctional(it.classType.className, it.memberName)
-        var modId = it.annotationData["value"] as String? ?: FunctionalMod.IMPLIED
-        if (modId == FunctionalMod.IMPLIED)
-          modId = loader.functionInfo.name
-        logger.debug(Logging.SCAN, "Found @FunctionalMod(\"{}\") on class {} with signature {}", modId, loader.className, loader.functionInfo)
-        modId to loader
-      }
-      .toList()
-    sd.addLanguageLoader(loaders)
+    }.toMap())
+  }
+
+  private fun resolveClassLoader(annotation: ModFileScanData.AnnotationData): Pair<String, IModLanguageLoader> {
+    val modId = annotation.annotationData["value"] as String
+    val loader = BoxlinModLoaderClass(annotation.classType.className)
+    logger.debug(Logging.SCAN, "Found @Mod(\"{}\") on class {}", modId, loader.className)
+    return modId to loader
+  }
+
+  private fun resolveFunctionLoader(annotation: ModFileScanData.AnnotationData): Pair<String, IModLanguageLoader> {
+    val loader = BoxlinModLoaderFunctional(annotation.classType.className, annotation.memberName)
+    var modId = annotation.annotationData["value"] as String? ?: FunctionalMod.IMPLIED
+    if (modId == FunctionalMod.IMPLIED)
+      modId = loader.functionInfo.name
+    logger.debug(Logging.SCAN, "Found @FunctionalMod(\"{}\") on class {} with signature {}", modId, loader.className, loader.functionType)
+    return modId to loader
   }
 }
